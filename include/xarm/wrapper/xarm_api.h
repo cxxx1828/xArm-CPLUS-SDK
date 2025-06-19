@@ -41,7 +41,7 @@
 #define RAD_DEGREE 57.295779513082320876798154814105
 #define TIMEOUT_10 10
 #define NO_TIMEOUT -1
-#define SDK_VERSION "1.15.2"
+#define SDK_VERSION "1.16.0"
 
 typedef unsigned int u32;
 typedef float fp32;
@@ -771,6 +771,7 @@ public:
    * @param pos: used to store the results obtained
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
+  int get_gripper_position(int *pos);
   int get_gripper_position(fp32 *pos);
 
   /**
@@ -781,7 +782,21 @@ public:
    * @param timeout: maximum waiting time(unit: second), default is 10s, only valid if wait is true
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
-  int set_gripper_position(fp32 pos, bool wait = false, fp32 timeout = 10, bool wait_motion = true);
+  int set_gripper_position(int pos, bool wait = false, fp32 timeout = 10, bool wait_motion = true);
+  int set_gripper_position(int pos, int speed, bool wait = false, fp32 timeout = 10, bool wait_motion = true);
+  int set_gripper_position(fp32 pos, bool wait = false, fp32 timeout = 10, bool wait_motion = true) { return set_gripper_position((int)pos, wait, timeout, wait_motion); }
+  
+  /**
+   * @brief Set the position of the xArm Gripper G2
+   * 
+   * @param pos: gripper pos between 0 and 850
+   * @param speed: gripper speed between 0 and 65535, default is 2000
+   * @param force: gripper force between 10 and 100, default is 50
+   * @param wait: whether to wait for the bio gripper motion complete, default is false
+   * @param timeout: maximum waiting time(unit: second), default is 10s, only valid if wait is true
+   * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+   */
+  int set_gripper_g2_position(int pos, int speed = 2000, int force = 50, bool wait = false, fp32 timeout = 10, bool wait_motion = true);
 
   /**
    * @brief Set the gripper speed
@@ -789,7 +804,8 @@ public:
    * @param speed:
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
-  int set_gripper_speed(fp32 speed);
+  int set_gripper_speed(int speed);
+  int set_gripper_speed(fp32 speed) { return set_gripper_speed((int)speed); }
 
   /**
    * @brief Get the gripper error code
@@ -1633,7 +1649,7 @@ public:
    * @param timeout: maximum waiting time(unit: second), default is 5, only available if wait=true     
    * @return: See the code documentation for details.
    */
-  int set_bio_gripper_position(int pos, int speed = 0, int force=100, bool wait = true, fp32 timeout = 5, bool wait_motion = true);
+  int set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, fp32 timeout = 5, bool wait_motion = true);
 
   /**
    * @brief Open the bio gripper
@@ -2859,7 +2875,7 @@ private:
   int _get_bio_gripper_sn(unsigned char sn[32]);
   int _get_bio_gripper_control_mode(int *mode);
 
-  int _check_gripper_position(fp32 target_pos, fp32 timeout = 10);
+  int _check_gripper_position(int target_pos, fp32 timeout = 10);
   int _check_gripper_status(fp32 timeout = 10);
   bool _gripper_is_support_status(void);
   int _get_gripper_status(int *status);

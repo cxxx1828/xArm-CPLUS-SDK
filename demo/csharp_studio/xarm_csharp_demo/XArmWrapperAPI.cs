@@ -216,16 +216,37 @@ namespace xarm_csharp_demo
             return XArmAPI.set_gripper_mode(mode, robot_instance_id);
         }
 
+        public int set_gripper_speed(int speed)
+        {
+            return XArmAPI.set_gripper_speed(speed, robot_instance_id);
+        }
         public int set_gripper_speed(float speed)
         {
             return XArmAPI.set_gripper_speed(speed, robot_instance_id);
         }
 
+        public int set_gripper_position(int pos, bool wait = false, float timeout = 10, bool wait_motion = true)
+        {
+            return XArmAPI.set_gripper_position(pos, wait, timeout, wait_motion, robot_instance_id);
+        }
+        public int set_gripper_position(int pos, int speed, bool wait = false, float timeout = 10, bool wait_motion = true)
+        {
+            return XArmAPI.set_gripper_position(pos, speed, wait, timeout, wait_motion, robot_instance_id);
+        }
         public int set_gripper_position(float pos, bool wait = false, float timeout = 10, bool wait_motion = true)
         {
             return XArmAPI.set_gripper_position(pos, wait, timeout, wait_motion, robot_instance_id);
         }
 
+        public int set_gripper_g2_position(int pos, int speed = 2000, int force = 50, bool wait = false, float timeout = 10, bool wait_motion = true)
+        {
+            return XArmAPI.set_gripper_g2_position(pos, speed, force, wait, timeout, wait_motion);
+        }
+
+        public int get_gripper_position(ref int pos)
+        {
+            return XArmAPI.get_gripper_position(ref pos, robot_instance_id);
+        }
         public int get_gripper_position(ref float pos)
         {
             return XArmAPI.get_gripper_position(ref pos, robot_instance_id);
@@ -542,7 +563,7 @@ namespace xarm_csharp_demo
             return XArmAPI.set_bio_gripper_force(force, robot_instance_id);
         }
 
-        public int set_bio_gripper_position(int pos, int speed = 0, int force=100, bool wait = true, float timeout = 5, bool wait_motion = true)
+        public int set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, float timeout = 5, bool wait_motion = true)
         {
             return XArmAPI.set_bio_gripper_position(pos, speed, force, wait, timeout, wait_motion, robot_instance_id);
         }

@@ -143,6 +143,10 @@ int XArmAPI::set_bio_gripper_force(int force)
 
 int XArmAPI::set_bio_gripper_position(int pos, int speed, int force, bool wait, fp32 timeout, bool wait_motion) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  int status;
+  get_bio_gripper_status(&status);
+  if (!bio_gripper_is_enabled_) set_bio_gripper_enable(true);
+  speed = speed > 4500 ? 4500 : speed;
   if (speed > 0 && speed != bio_gripper_speed_) { set_bio_gripper_speed(speed); }
   if (bio_gripper_version_ == 0)
   {
@@ -154,16 +158,20 @@ int XArmAPI::set_bio_gripper_position(int pos, int speed, int force, bool wait, 
     int mode = 0;
     int code = _get_bio_gripper_control_mode(&mode);
     if (mode == 1) {
-      pos = int(pos * 3.798 - 269.620);
+      // pos = int(pos * 3.798 - 269.620);
+      pos = int(pos * 3.7342 - 265.13);
     }
-    set_bio_gripper_force(force);
+    force = force > 100 ? 100 : force;
+    if (force >= 10)
+      set_bio_gripper_force(force);
   }
 
   unsigned char params[11] = { 0x08, 0x10, 0x07, 0x00, 0x00, 0x02, 0x04 };
-  params[7] = (unsigned char)(pos >> 24);
-  params[8] = (unsigned char)(pos >> 16);
-  params[9] = (unsigned char)(pos >> 8);
-  params[10] = (unsigned char)(pos);
+  bin32_to_8(pos, &params[7]);
+  // params[7] = (unsigned char)(pos >> 24);
+  // params[8] = (unsigned char)(pos >> 16);
+  // params[9] = (unsigned char)(pos >> 8);
+  // params[10] = (unsigned char)(pos);
   unsigned char rx_data[6] = { 0 };
   if (wait_motion) {
     bool has_error = error_code != 0;

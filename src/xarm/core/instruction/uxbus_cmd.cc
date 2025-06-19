@@ -706,6 +706,7 @@ int UxbusCmd::get_joint_pose(float angles[7]) {
 int UxbusCmd::get_joint_states(float position[7], float velocity[7], float effort[7], int num) {
   float fp_tmp[21] = { 0 };
   unsigned char u8_tmp = num;
+  num = num & 0x0F;
   int ret = _get_nfp32_with_bytes(UXBUS_RG::GET_JOINT_POS, &u8_tmp, 1, fp_tmp, num * 7);
   memcpy(position, fp_tmp, sizeof(float) * 7);
   if (num >= 2 && velocity != NULL)
@@ -1009,77 +1010,81 @@ int UxbusCmd::tgpio_set_modbus(unsigned char *modbus_t, int len_t, unsigned char
   return ret;
 }
 
-int UxbusCmd::gripper_modbus_w16s(int addr, float value, int len) {
+int UxbusCmd::gripper_modbus_w16s(int addr, int value, int count) {
   unsigned char *txdata = new unsigned char[11]();
   unsigned char *rx_data = new unsigned char[254]();
   txdata[0] = UXBUS_CONF::GRIPPER_ID;
   txdata[1] = 0x10;
   bin16_to_8(addr, &txdata[2]);
-  bin16_to_8(len, &txdata[4]);
-  txdata[6] = len * 2;
-  fp32_to_hex(value, &txdata[7]);
-  int ret = tgpio_set_modbus(txdata, len * 2 + 7, rx_data);
+  bin16_to_8(count, &txdata[4]);
+  txdata[6] = count * 2;
+  if (count == 1)
+    bin16_to_8(value, &txdata[7]);
+  else // count == 2
+    bin32_to_8(value, &txdata[7]);
+  // fp32_to_hex(value, &txdata[7]);
+  int ret = tgpio_set_modbus(txdata, count * 2 + 7, rx_data);
   delete[] txdata;
   delete[] rx_data;
   return ret;
 }
 
-int UxbusCmd::gripper_modbus_r16s(int addr, int len, unsigned char *rx_data) {
+int UxbusCmd::gripper_modbus_r16s(int addr, int count, unsigned char *rx_data) {
   unsigned char *txdata = new unsigned char[6]();
   txdata[0] = UXBUS_CONF::GRIPPER_ID;
   txdata[1] = 0x03;
   bin16_to_8(addr, &txdata[2]);
-  bin16_to_8(len, &txdata[4]);
+  bin16_to_8(count, &txdata[4]);
   int ret = tgpio_set_modbus(txdata, 6, rx_data);
   delete[] txdata;
   return ret;
 }
 
 int UxbusCmd::gripper_modbus_set_en(int value) {
-  unsigned char *txdata = new unsigned char[4]();
-  bin16_to_8(value, &txdata[0]);
-  float _value = hex_to_fp32(txdata);
-  delete[] txdata;
-  return gripper_modbus_w16s(SERVO3_RG::CON_EN, _value, 1);
+  // unsigned char *txdata = new unsigned char[4]();
+  // bin16_to_8(value, &txdata[0]);
+  // float _value = hex_to_fp32(txdata);
+  // delete[] txdata;
+  return gripper_modbus_w16s(SERVO3_RG::CON_EN, value, 1);
 }
 
 int UxbusCmd::gripper_modbus_set_mode(int value) {
-  unsigned char *txdata = new unsigned char[4]();
-  bin16_to_8(value, &txdata[0]);
-  float _value = hex_to_fp32(txdata);
-  delete[] txdata;
-  return gripper_modbus_w16s(SERVO3_RG::CON_MODE, _value, 1);
+  // unsigned char *txdata = new unsigned char[4]();
+  // bin16_to_8(value, &txdata[0]);
+  // float _value = hex_to_fp32(txdata);
+  // delete[] txdata;
+  return gripper_modbus_w16s(SERVO3_RG::CON_MODE, value, 1);
 }
 
 int UxbusCmd::gripper_modbus_set_zero(void) {
   return gripper_modbus_w16s(SERVO3_RG::MT_ZERO, 1, 1);
 }
 
-int UxbusCmd::gripper_modbus_get_pos(float *pulse) {
+int UxbusCmd::gripper_modbus_get_pos(int *pulse) {
   unsigned char *rx_data = new unsigned char[254]();
   int ret = gripper_modbus_r16s(SERVO3_RG::CURR_POS, 2, rx_data);
-  *pulse = (float)bin8_to_32(&rx_data[4]);
+  *pulse = bin8_to_32(&rx_data[4]);
   delete[] rx_data;
   return ret;
 }
 
-int UxbusCmd::gripper_modbus_set_pos(float pulse) {
-  unsigned char *txdata = new unsigned char[4]();
-  txdata[0] = ((int)pulse >> 24) & 0xFF;
-  txdata[1] = ((int)pulse >> 16) & 0xFF;
-  txdata[2] = ((int)pulse >> 8) & 0xFF;
-  txdata[3] = (int)pulse & 0xFF;
-  float value = hex_to_fp32(txdata);
-  delete[] txdata;
-  return gripper_modbus_w16s(SERVO3_RG::TAGET_POS, value, 2);
+int UxbusCmd::gripper_modbus_set_pos(int pulse) {
+  // unsigned char *txdata = new unsigned char[4]();
+  // txdata[0] = (pulse >> 24) & 0xFF;
+  // txdata[1] = (pulse >> 16) & 0xFF;
+  // txdata[2] = (pulse >> 8) & 0xFF;
+  // txdata[3] = pulse & 0xFF;
+  // float value = hex_to_fp32(txdata);
+  // delete[] txdata;
+  return gripper_modbus_w16s(SERVO3_RG::TAGET_POS, pulse, 2);
 }
 
-int UxbusCmd::gripper_modbus_set_posspd(float speed) {
-  unsigned char *txdata = new unsigned char[4]();
-  bin16_to_8((int)speed, &txdata[0]);
-  float value = hex_to_fp32(txdata);
-  delete[] txdata;
-  return gripper_modbus_w16s(SERVO3_RG::POS_SPD, value, 1);
+int UxbusCmd::gripper_modbus_set_posspd(int speed) {
+  // unsigned char *txdata = new unsigned char[4]();
+  // bin16_to_8(speed, &txdata[0]);
+  // float value = hex_to_fp32(txdata);
+  // delete[] txdata;
+  return gripper_modbus_w16s(SERVO3_RG::POS_SPD, speed, 1);
 }
 
 int UxbusCmd::gripper_modbus_get_errcode(int *err) {

@@ -183,14 +183,14 @@ public:
   int set_modbus_timeout(int value, bool is_transparent_transmission = false);
   int set_modbus_baudrate(int baud);
   int tgpio_set_modbus(unsigned char *send_data, int length, unsigned char *recv_data, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID, float limit_sec = 0.0, bool is_transparent_transmission = false);
-  int gripper_modbus_w16s(int addr, float value, int len);
-  int gripper_modbus_r16s(int addr, int len, unsigned char *rx_data);
+  int gripper_modbus_w16s(int addr, int value, int count);
+  int gripper_modbus_r16s(int addr, int count, unsigned char *rx_data);
   int gripper_modbus_set_en(int value);
   int gripper_modbus_set_mode(int value);
   int gripper_modbus_set_zero(void);
-  int gripper_modbus_get_pos(float *pulse);
-  int gripper_modbus_set_pos(float pulse);
-  int gripper_modbus_set_posspd(float speed);
+  int gripper_modbus_get_pos(int *pulse);
+  int gripper_modbus_set_pos(int pulse);
+  int gripper_modbus_set_posspd(int speed);
   int gripper_modbus_get_errcode(int *err);
   int gripper_modbus_clean_err(void);
 

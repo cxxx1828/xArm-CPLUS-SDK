@@ -874,7 +874,9 @@ int XArmAPI::get_servo_angle(fp32 angs[7], bool is_real) {
 
 int XArmAPI::get_joint_states(fp32 jposition[7], fp32 velocity[7], fp32 effort[7], int num) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (num < 1 || num > 3) return API_CODE::PARAM_ERROR;
+  int count = num & 0x0F;
+  if (count < 1 || count > 3) return API_CODE::PARAM_ERROR;
+  num = _version_is_ge(2, 6, 107) ? num : count;
   int ret = core->get_joint_states(jposition, velocity, effort, num);
   ret = _check_code(ret);
   if (ret == 0) {

@@ -66,9 +66,11 @@ namespace XArmWrapper {
   
   extern "C" __declspec(dllexport) int __stdcall set_gripper_enable(bool enable, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_gripper_mode(int mode, int instance_id = -1);
-  extern "C" __declspec(dllexport) int __stdcall set_gripper_speed(fp32 speed, int instance_id = -1);
-  extern "C" __declspec(dllexport) int __stdcall set_gripper_position(fp32 pos, bool wait=false, fp32 timeout=10, bool wait_motion = true, int instance_id = -1);
-  extern "C" __declspec(dllexport) int __stdcall get_gripper_position(fp32 *pos, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall set_gripper_speed(int speed, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall set_gripper_position(int pos, bool wait=false, fp32 timeout=10, bool wait_motion = true, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall set_gripper_position(int pos, int speed, bool wait=false, fp32 timeout=10, bool wait_motion = true, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall set_gripper_g2_position(int pos, int speed = 2000, int force = 50, bool wait = false, fp32 timeout = 10, bool wait_motion = true, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall get_gripper_position(int *pos, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_gripper_err_code(int *err, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall clean_gripper_error(int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_tgpio_digital(int *io0_value, int *io1_value, int *io2_value = NULL, int *io3_value = NULL, int *io4_value = NULL, int instance_id = -1);
@@ -138,7 +140,7 @@ namespace XArmWrapper {
   extern "C" __declspec(dllexport) int __stdcall set_bio_gripper_speed(int speed, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_bio_gripper_control_mode(int mode, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_bio_gripper_force(int force, int instance_id = -1);
-  extern "C" __declspec(dllexport) int __stdcall set_bio_gripper_position(int pos, int speed = 0, int force=100, bool wait = true, fp32 timeout = 5, bool wait_motion = true, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, fp32 timeout = 5, bool wait_motion = true, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall open_bio_gripper(int speed = 0, bool wait = true, fp32 timeout = 5, bool wait_motion = true, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall close_bio_gripper(int speed = 0, bool wait = true, fp32 timeout = 5, bool wait_motion = true, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_bio_gripper_status(int *status, int instance_id = -1);

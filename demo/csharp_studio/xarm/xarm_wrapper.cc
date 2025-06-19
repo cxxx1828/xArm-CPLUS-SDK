@@ -203,13 +203,19 @@ namespace XArmWrapper
   int __stdcall set_gripper_mode(int mode, int instance_id) {
     return get_instance(instance_id)->set_gripper_mode(mode);
   }
-  int __stdcall set_gripper_speed(fp32 speed, int instance_id) {
+  int __stdcall set_gripper_speed(int speed, int instance_id) {
     return get_instance(instance_id)->set_gripper_speed(speed);
   }
-  int __stdcall set_gripper_position(fp32 pos, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
+  int __stdcall set_gripper_position(int pos, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
     return get_instance(instance_id)->set_gripper_position(pos, wait, timeout, wait_motion);
   }
-  int __stdcall get_gripper_position(fp32 *pos, int instance_id) {
+  int __stdcall set_gripper_position(int pos, int speed, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
+    return get_instance(instance_id)->set_gripper_position(pos, speed, wait, timeout, wait_motion);
+  }
+  int __stdcall set_gripper_g2_position(int pos, int speed, int force, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
+    return get_instance(instance_id)->set_gripper_g2_position(pos, speed, force, wait, timeout, wait_motion);
+  }
+  int __stdcall get_gripper_position(int *pos, int instance_id) {
     return get_instance(instance_id)->get_gripper_position(pos);
   }
   int __stdcall get_gripper_err_code(int *err, int instance_id) {
