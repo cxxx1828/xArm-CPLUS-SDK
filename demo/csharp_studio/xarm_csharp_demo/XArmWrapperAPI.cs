@@ -229,10 +229,6 @@ namespace xarm_csharp_demo
         {
             return XArmAPI.set_gripper_position(pos, wait, timeout, wait_motion, robot_instance_id);
         }
-        public int set_gripper_position(int pos, int speed, bool wait = false, float timeout = 10, bool wait_motion = true)
-        {
-            return XArmAPI.set_gripper_position(pos, speed, wait, timeout, wait_motion, robot_instance_id);
-        }
         public int set_gripper_position(float pos, bool wait = false, float timeout = 10, bool wait_motion = true)
         {
             return XArmAPI.set_gripper_position(pos, wait, timeout, wait_motion, robot_instance_id);

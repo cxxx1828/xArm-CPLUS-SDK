@@ -68,7 +68,6 @@ namespace XArmWrapper {
   extern "C" __declspec(dllexport) int __stdcall set_gripper_mode(int mode, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_gripper_speed(int speed, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_gripper_position(int pos, bool wait=false, fp32 timeout=10, bool wait_motion = true, int instance_id = -1);
-  extern "C" __declspec(dllexport) int __stdcall set_gripper_position(int pos, int speed, bool wait=false, fp32 timeout=10, bool wait_motion = true, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_gripper_g2_position(int pos, int speed = 2000, int force = 50, bool wait = false, fp32 timeout = 10, bool wait_motion = true, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_gripper_position(int *pos, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_gripper_err_code(int *err, int instance_id = -1);

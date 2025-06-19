@@ -123,8 +123,6 @@ namespace xarm_csharp_demo
         [DllImport("xarm.dll")]
         public static extern int set_gripper_position(int pos, bool wait = false, float timeout = 10, bool wait_motion = true, int instance_id = -1);
         [DllImport("xarm.dll")]
-        public static extern int set_gripper_position(int pos, int speed, bool wait = false, float timeout = 10, bool wait_motion = true, int instance_id = -1);
-        [DllImport("xarm.dll")]
         public static extern int set_gripper_g2_position(int pos, int speed = 2000, int force = 50, bool wait = false, float timeout = 10, bool wait_motion = true, int instance_id = -1);
         [DllImport("xarm.dll")]
         public static extern int get_gripper_position(ref int pos, int instance_id = -1);
@@ -532,7 +530,7 @@ namespace xarm_csharp_demo
 
         public static int get_gripper_position(ref float pos, int instance_id = -1)
         {
-            int val;
+            int val = 0;
             int ret = get_gripper_position(ref val, instance_id);
             pos = (float)val;
             return ret;
