@@ -818,7 +818,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_gripper_position(float pos, bool wait=false, float timeout=10, bool wait_motion = true)__
+- __int set_gripper_position(int pos, bool wait=false, float timeout=10, bool wait_motion = true)__
   > Set the gripper position
   > 
   > @param pos: gripper position  
@@ -826,6 +826,17 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @param timeout: maximum waiting time(unit: second), default is 10s, only valid if wait is true  
   > 
   > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
+- __int set_gripper_g2_position(int pos, int speed = 2000, int force=50, bool wait = false, fp32 timeout = 10, bool wait_motion = true)__
+  > Set the position of the xArm Gripper G2
+  > 
+  > @param pos: gripper pos between 0 and 850   
+  > @param speed: gripper speed between 0 and 65535, default is 2000
+  > @param force: gripper force between 10 and 100, default is 50
+  > @param wait: whether to wait for the bio gripper motion complete, default is false  
+  > @param timeout: maximum waiting time(unit: second), default is 10, only available if wait=true
+  > 
+  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
 - __int set_gripper_speed(float speed)__
@@ -1587,7 +1598,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
-- __int set_bio_gripper_position(int pos, int speed = 0, int force=100, bool wait = true, fp32 timeout = 5)__
+- __int set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, fp32 timeout = 5)__
   > Set the position of the bio gripper
   > &ensp;&ensp;&ensp;&ensp;Note: Only available in the new version of BIO Gripper    
   > 
