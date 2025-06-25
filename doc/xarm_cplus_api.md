@@ -1985,6 +1985,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > 
   > @param ft_data: the result of the Six-axis Force Torque Sensor. 
   > @param is_raw: get the raw data or not.  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.6.109
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
