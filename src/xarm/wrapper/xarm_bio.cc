@@ -162,7 +162,7 @@ int XArmAPI::_set_bio_gripper_position(int pos, int speed, int force, bool wait,
       pos = int(pos * 3.7342 - 265.13);
     }
     force = force > 100 ? 100 : force;
-    if (force >= 10)
+    if (force >= 1)
       set_bio_gripper_force(force);
   }
 
@@ -201,10 +201,25 @@ int XArmAPI::set_bio_gripper_g2_position(int pos, int speed, int force, bool wai
   speed = speed < 500 ? 500 : speed > 4000 ? 4000 : speed;
   force = force < 1 ? 1 : force > 100 ? 100 : force;
 
+  if (bio_gripper_version_ == 0)
+  {
+    unsigned char sn[32];
+    _get_bio_gripper_sn(sn);
+  }
+  int pos_pluse = pos;
+  if (bio_gripper_version_ == 2)
+  {
+    int mode = 0;
+    int code = _get_bio_gripper_control_mode(&mode);
+    if (mode == 1) {
+      pos_pluse = (int)(pos * 3.7342 - 265.13);
+    }
+  }
+
   unsigned char data_frame[17] = { 0x08, 0x10, 0x0C, 0x00, 0x00, 0x05, 0x0A, 0x00, 0x01 };
   bin16_to_8(speed, &data_frame[9]);
   bin16_to_8(force, &data_frame[11]);
-  bin32_to_8(pos, &data_frame[13]);
+  bin32_to_8(pos_pluse, &data_frame[13]);
   int ret = _bio_gripper_send_modbus(data_frame, 17, rx_data, 6);
   if (rx_data[2] == 2) {
     return _set_bio_gripper_position(pos, speed, force, wait, timeout, false);
