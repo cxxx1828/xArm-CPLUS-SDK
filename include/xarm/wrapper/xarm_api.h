@@ -789,14 +789,14 @@ public:
   /**
    * @brief Set the position of the xArm Gripper G2
    * 
-   * @param pos: gripper pos between 0 and 850
-   * @param speed: gripper speed between 0 and 65535, default is 2000
-   * @param force: gripper force between 10 and 100, default is 50
+   * @param pos: gripper pos between 0 and 84, (unit: mm)
+   * @param speed: gripper speed between 15 and 225, default is 100, (unit: mm/s)
+   * @param force: gripper force between 1 and 100, default is 50
    * @param wait: whether to wait for the bio gripper motion complete, default is false
    * @param timeout: maximum waiting time(unit: second), default is 10s, only valid if wait is true
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
-  int set_gripper_g2_position(int pos, int speed = 2000, int force = 50, bool wait = false, fp32 timeout = 10, bool wait_motion = true);
+  int set_gripper_g2_position(int pos, int speed = 100, int force = 50, bool wait = false, fp32 timeout = 10, bool wait_motion = true);
 
   /**
    * @brief Set the gripper speed
@@ -1642,14 +1642,14 @@ public:
    * @brief Set the position of the bio gripper
    *   Note: Only available in the new version of BIO Gripper
    * 
-   * @param pos: gripper pos between 71 and 150
-   * @param speed: gripper speed between 0 and 4500, default is 0 (not set the speed)
-   * @param force: gripper force between 10 and 100
+   * @param pos: gripper pos between 71 and 150, (unit: mm)
+   * @param speed: gripper speed between 500 and 4000, default is 2000, (unit: pulse/s)
+   * @param force: gripper force between 1 and 100, default is 100
    * @param wait: whether to wait for the bio gripper motion complete, default is true
    * @param timeout: maximum waiting time(unit: second), default is 5, only available if wait=true     
    * @return: See the code documentation for details.
    */
-  int set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, fp32 timeout = 5, bool wait_motion = true);
+  int set_bio_gripper_g2_position(int pos, int speed = 2000, int force=100, bool wait = true, fp32 timeout = 5, bool wait_motion = true);
 
   /**
    * @brief Open the bio gripper
@@ -2874,6 +2874,7 @@ private:
   int _bio_gripper_wait_enable_completed(fp32 timeout = 3);
   int _get_bio_gripper_sn(unsigned char sn[32]);
   int _get_bio_gripper_control_mode(int *mode);
+  int _set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, fp32 timeout = 5, bool wait_motion = true);
 
   int _check_gripper_position(int target_pos, fp32 timeout = 10);
   int _check_gripper_status(fp32 timeout = 10);

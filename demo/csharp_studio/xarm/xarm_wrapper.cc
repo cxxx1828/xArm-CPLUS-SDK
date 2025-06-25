@@ -409,8 +409,8 @@ namespace XArmWrapper
   int __stdcall set_bio_gripper_force(int force, int instance_id) {
     return get_instance(instance_id)->set_bio_gripper_force(force);
   }
-  int __stdcall set_bio_gripper_position(int pos, int speed, int force, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
-    return get_instance(instance_id)->set_bio_gripper_position(pos, speed, force, wait, timeout, wait_motion);
+  int __stdcall set_bio_gripper_g2_position(int pos, int speed, int force, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
+    return get_instance(instance_id)->set_bio_gripper_g2_position(pos, speed, force, wait, timeout, wait_motion);
   }
   int __stdcall open_bio_gripper(int speed, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
     return get_instance(instance_id)->open_bio_gripper(speed, wait, timeout, wait_motion);

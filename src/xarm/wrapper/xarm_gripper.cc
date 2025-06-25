@@ -273,6 +273,13 @@ int XArmAPI::set_gripper_g2_position(int pos, int speed, int force, bool wait, f
   }
   if (baud_checkset_flag_ && _checkset_modbus_baud(default_gripper_baud_) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
 
+  pos = pos < 0 ? 0 : pos > 84 ? 84 : pos;
+  speed = speed < 15 ? 15 : speed > 225 ? 225 : speed;
+  force = force < 1 ? 1 : force > 100 ? 100 : force;
+
+  pos = (int)((to_degree(asin((pos - 16) / 110.0)) + 8.33) * 18.28);
+  speed = (int)(((speed * 60) / 9.88235 + 140) / 0.4);
+
   unsigned char data_frame[17] = { 0x08, 0x10, 0x0C, 0x00, 0x00, 0x05, 0x0A, 0x00, 0x01 };
   bin16_to_8(speed, &data_frame[9]);
   bin16_to_8(force, &data_frame[11]);

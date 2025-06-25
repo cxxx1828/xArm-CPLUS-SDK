@@ -141,12 +141,12 @@ int XArmAPI::set_bio_gripper_force(int force)
   return ret;
 }
 
-int XArmAPI::set_bio_gripper_position(int pos, int speed, int force, bool wait, fp32 timeout, bool wait_motion) {
+int XArmAPI::_set_bio_gripper_position(int pos, int speed, int force, bool wait, fp32 timeout, bool wait_motion) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   int status;
   get_bio_gripper_status(&status);
   if (!bio_gripper_is_enabled_) set_bio_gripper_enable(true);
-  speed = speed > 4500 ? 4500 : speed;
+  speed = speed > 4000 ? 4000 : speed;
   if (speed > 0 && speed != bio_gripper_speed_) { set_bio_gripper_speed(speed); }
   if (bio_gripper_version_ == 0)
   {
@@ -186,8 +186,35 @@ int XArmAPI::set_bio_gripper_position(int pos, int speed, int force, bool wait, 
   return ret;
 }
 
+int XArmAPI::set_bio_gripper_g2_position(int pos, int speed, int force, bool wait, fp32 timeout, bool wait_motion) {
+  unsigned char rx_data[6] = { 0 };
+  if (wait_motion) {
+    bool has_error = error_code != 0;
+    bool is_stop = state == 4 || state == 5;
+    int code = _wait_move(NO_TIMEOUT);
+    if (!(code == 0 || (is_stop && code == API_CODE::EMERGENCY_STOP) || (has_error && code == API_CODE::HAS_ERROR))) {
+      return code;
+    }
+  }
+
+  pos = pos < 71 ? 71 : pos > 150 ? 150 : pos;
+  speed = speed < 500 ? 500 : speed > 4000 ? 4000 : speed;
+  force = force < 1 ? 1 : force > 100 ? 100 : force;
+
+  unsigned char data_frame[17] = { 0x08, 0x10, 0x0C, 0x00, 0x00, 0x05, 0x0A, 0x00, 0x01 };
+  bin16_to_8(speed, &data_frame[9]);
+  bin16_to_8(force, &data_frame[11]);
+  bin32_to_8(pos, &data_frame[13]);
+  int ret = _bio_gripper_send_modbus(data_frame, 17, rx_data, 6);
+  if (rx_data[2] == 2) {
+    return _set_bio_gripper_position(pos, speed, force, wait, timeout, false);
+  }
+  if (ret == 0 && wait) { ret = _bio_gripper_wait_motion_completed(timeout); }
+  return ret;
+}
+
 int XArmAPI::open_bio_gripper(int speed, bool wait, fp32 timeout, bool wait_motion) {
-  return set_bio_gripper_position(130, speed, 100, wait, timeout, wait_motion);
+  return _set_bio_gripper_position(130, speed, 100, wait, timeout, wait_motion);
 }
 
 int XArmAPI::open_bio_gripper(bool wait, fp32 timeout, bool wait_motion) {
@@ -195,7 +222,7 @@ int XArmAPI::open_bio_gripper(bool wait, fp32 timeout, bool wait_motion) {
 }
 
 int XArmAPI::close_bio_gripper(int speed, bool wait, fp32 timeout, bool wait_motion) {
-  return set_bio_gripper_position(50, speed, 100, wait, timeout, wait_motion);
+  return _set_bio_gripper_position(50, speed, 100, wait, timeout, wait_motion);
 }
 
 int XArmAPI::close_bio_gripper(bool wait, fp32 timeout, bool wait_motion) {

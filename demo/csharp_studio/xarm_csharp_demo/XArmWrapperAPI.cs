@@ -234,7 +234,7 @@ namespace xarm_csharp_demo
             return XArmAPI.set_gripper_position(pos, wait, timeout, wait_motion, robot_instance_id);
         }
 
-        public int set_gripper_g2_position(int pos, int speed = 2000, int force = 50, bool wait = false, float timeout = 10, bool wait_motion = true)
+        public int set_gripper_g2_position(int pos, int speed = 100, int force = 50, bool wait = false, float timeout = 10, bool wait_motion = true)
         {
             return XArmAPI.set_gripper_g2_position(pos, speed, force, wait, timeout, wait_motion);
         }
@@ -559,9 +559,9 @@ namespace xarm_csharp_demo
             return XArmAPI.set_bio_gripper_force(force, robot_instance_id);
         }
 
-        public int set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, float timeout = 5, bool wait_motion = true)
+        public int set_bio_gripper_g2_position(int pos, int speed = 2000, int force = 100, bool wait = true, float timeout = 5, bool wait_motion = true)
         {
-            return XArmAPI.set_bio_gripper_position(pos, speed, force, wait, timeout, wait_motion, robot_instance_id);
+            return XArmAPI.set_bio_gripper_g2_position(pos, speed, force, wait, timeout, wait_motion, robot_instance_id);
         }
 
         public int open_bio_gripper(int speed = 0, bool wait = true, float timeout = 5, bool wait_motion = true)
