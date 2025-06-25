@@ -304,7 +304,7 @@ namespace xarm_csharp_demo
         [DllImport("xarm.dll")]
         public static extern int ft_sensor_app_get(ref int app_code, int instance_id = -1);
         [DllImport("xarm.dll")]
-        public static extern int get_ft_sensor_data(float[] ft_data, int instance_id = -1);
+        public static extern int get_ft_sensor_data(float[] ft_data, bool is_raw = false, int instance_id = -1);
         [DllImport("xarm.dll")]
         public static extern int get_ft_sensor_config(ref int ft_app_status, ref int ft_is_started, ref int ft_type, ref int ft_id, ref int ft_freq, 
             ref float ft_mass, ref float ft_dir_bias, float[] ft_centroid, float[] ft_zero, ref int imp_coord, int[] imp_c_axis, float[] M, float[] K, float[] B,

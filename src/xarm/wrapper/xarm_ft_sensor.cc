@@ -113,10 +113,11 @@ int XArmAPI::ft_sensor_app_get(int *app_code)
   return _check_code(ret);
 }
 
-int XArmAPI::get_ft_sensor_data(float ft_data[6])
+int XArmAPI::get_ft_sensor_data(float ft_data[6], bool is_raw)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  int ret = core->ft_sensor_get_data(ft_data, _version_is_ge(1, 8, 3));
+  is_raw = _version_is_ge(2, 6, 109) ? is_raw : false;
+  int ret = core->ft_sensor_get_data(ft_data, _version_is_ge(1, 8, 3), is_raw);
   return _check_code(ret);
 }
 

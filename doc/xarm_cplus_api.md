@@ -1977,13 +1977,14 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_ft_sensor_data(float ft_data[6])__
+- __int get_ft_sensor_data(float ft_data[6], bool is_raw)__
   > Get the data of the Six-axis Force Torque Sensor  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
   > 
-  > @param ft_data: the result of the Six-axis Force Torque Sensor.
+  > @param ft_data: the result of the Six-axis Force Torque Sensor. 
+  > @param is_raw: get the raw data or not.  
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 

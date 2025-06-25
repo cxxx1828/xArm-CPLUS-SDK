@@ -684,9 +684,9 @@ namespace xarm_csharp_demo
             return XArmAPI.ft_sensor_app_get(ref app_code, robot_instance_id);
         }
 
-        public int get_ft_sensor_data(float[] ft_data)
+        public int get_ft_sensor_data(float[] ft_data, bool is_raw)
         {
-            return XArmAPI.get_ft_sensor_data(ft_data, robot_instance_id);
+            return XArmAPI.get_ft_sensor_data(ft_data, is_raw, robot_instance_id);
         }
 
         public int get_ft_sensor_config(ref int ft_app_status, ref int ft_is_started, ref int ft_type, ref int ft_id, ref int ft_freq, 

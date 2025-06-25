@@ -486,8 +486,8 @@ namespace XArmWrapper
   int __stdcall ft_sensor_app_get(int *app_code, int instance_id) {
     return get_instance(instance_id)->ft_sensor_app_get(app_code);
   }
-  int __stdcall get_ft_sensor_data(float ft_data[6], int instance_id) {
-    return get_instance(instance_id)->get_ft_sensor_data(ft_data);
+  int __stdcall get_ft_sensor_data(float ft_data[6], bool is_raw, int instance_id) {
+    return get_instance(instance_id)->get_ft_sensor_data(ft_data, is_raw);
   }
   int __stdcall get_ft_sensor_config(int *ft_app_status, int *ft_is_started, int *ft_type, int *ft_id, int *ft_freq, 
     float *ft_mass, float *ft_dir_bias, float ft_centroid[3], float ft_zero[6], int *imp_coord, int imp_c_axis[6], float M[6], float K[6], float B[6],

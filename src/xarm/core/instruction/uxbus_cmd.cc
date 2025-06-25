@@ -1676,9 +1676,12 @@ int UxbusCmd::ft_sensor_app_get(int *app_code)
   return _get_nu8(UXBUS_RG::FTSENSOR_GET_APP, app_code, 1);
 }
 
-int UxbusCmd::ft_sensor_get_data(float ft_data[6], bool is_new)
+int UxbusCmd::ft_sensor_get_data(float ft_data[6], bool is_new, bool is_raw)
 {
-  return _get_nfp32(is_new ? UXBUS_RG::FTSENSOR_GET_DATA : UXBUS_RG::FTSENSOR_GET_DATA_OLD, ft_data, 6);
+  if (is_new && is_raw)
+    return _get_nfp32_with_bytes(UXBUS_RG::FTSENSOR_GET_DATA, (unsigned char *)(&is_raw), 1, ft_data, 6);
+  else
+    return _get_nfp32(is_new ? UXBUS_RG::FTSENSOR_GET_DATA : UXBUS_RG::FTSENSOR_GET_DATA_OLD, ft_data, 6);
 }
 
 int UxbusCmd::ft_sensor_get_config(int *ft_app_status, int *ft_is_started, int *ft_type, int *ft_id, int *ft_freq, 

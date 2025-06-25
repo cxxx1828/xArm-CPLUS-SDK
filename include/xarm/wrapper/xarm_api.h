@@ -2046,7 +2046,7 @@ public:
    * @param ft_data: the result of the Six-axis Force Torque Sensor.
    * return: See the code documentation for details.
    */
-  int get_ft_sensor_data(float ft_data[6]);
+  int get_ft_sensor_data(float ft_data[6], bool is_raw = false);
 
   /**
    * @brief Get the config of the Six-axis Force Torque Sensor
