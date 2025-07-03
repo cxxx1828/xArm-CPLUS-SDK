@@ -25,17 +25,17 @@ int XArmAPI::get_gripper_version(unsigned char versions[3]) {
   ret3 = _check_modbus_code(ret3);
   if (ret1 == 0) { 
     versions[0] = (unsigned char)bin8_to_16(&val1[4]); 
-    gripper_version_numbers_[0] = version[0];
+    xarm_gripper_versions_[0] = version[0];
   }
   else { code = ret1; }
   if (ret2 == 0) { 
     versions[1] = (unsigned char)bin8_to_16(&val2[4]);
-    gripper_version_numbers_[1] = version[1];
+    xarm_gripper_versions_[1] = version[1];
   }
   else { code = ret2; }
   if (ret3 == 0) { 
     versions[2] = (unsigned char)bin8_to_16(&val3[4]);
-    gripper_version_numbers_[2] = version[2];
+    xarm_gripper_versions_[2] = version[2];
   }
   else { code = ret3; }
   return code;
@@ -49,8 +49,8 @@ int XArmAPI::set_gripper_enable(bool enable) {
   int err = 0;
   get_gripper_err_code(&err);
   ret = _check_modbus_code(ret);
-  if (ret == 0 && xarm_gripper_error_code_ == 0) gripper_is_enabled_ = true;
-  return xarm_gripper_error_code_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
+  if (ret == 0 && xarm_gripper_error_ == 0) xarm_gripper_is_enabled_ = true;
+  return xarm_gripper_error_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
 }
 
 int XArmAPI::set_gripper_mode(int mode) {
@@ -60,7 +60,7 @@ int XArmAPI::set_gripper_mode(int mode) {
   int err = 0;
   get_gripper_err_code(&err);
   ret = _check_modbus_code(ret);
-  return xarm_gripper_error_code_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
+  return xarm_gripper_error_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
 }
 
 int XArmAPI::set_gripper_speed(int speed) {
@@ -70,7 +70,7 @@ int XArmAPI::set_gripper_speed(int speed) {
   int err = 0;
   get_gripper_err_code(&err);
   ret = _check_modbus_code(ret);
-  return xarm_gripper_error_code_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
+  return xarm_gripper_error_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
 }
 
 int XArmAPI::get_gripper_position(int *pos) {
@@ -80,12 +80,20 @@ int XArmAPI::get_gripper_position(int *pos) {
   int err = 0;
   get_gripper_err_code(&err);
   ret = _check_modbus_code(ret);
-  return xarm_gripper_error_code_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
+  return xarm_gripper_error_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
 }
 int XArmAPI::get_gripper_position(fp32 *pos) {
   int val;
   int ret = get_gripper_position(&val);
   *pos = (fp32)val;
+  return ret;
+}
+
+int XArmAPI::get_gripper_g2_position(int *pos) {
+  int val;
+  int ret = get_gripper_position(&val);
+  float p = sin(to_radian(val / 18.28 - 8.33)) * 110.0 + 16;
+  *pos = (int)round(p);
   return ret;
 }
 
@@ -96,22 +104,22 @@ int XArmAPI::get_gripper_err_code(int *err) {
   ret = _check_modbus_code(ret);
   if (ret == 0) {
     if (*err < 128) {
-      xarm_gripper_error_code_ = *err;
-      if (xarm_gripper_error_code_ != 0)
-        gripper_is_enabled_ = false;
+      xarm_gripper_error_ = *err;
+      if (xarm_gripper_error_ != 0)
+        xarm_gripper_is_enabled_ = false;
     }
   }
   return ret;
 }
 
 bool XArmAPI::_gripper_is_support_status(void) {
-  if (gripper_version_numbers_[0] == -1 || gripper_version_numbers_[1] == -1 || gripper_version_numbers_[2] == -1) {
+  if (xarm_gripper_versions_[0] == -1 || xarm_gripper_versions_[1] == -1 || xarm_gripper_versions_[2] == -1) {
     unsigned char ver[3] = { 0 };
     get_gripper_version(ver);
   }
-  return gripper_version_numbers_[0] > 3
-    || (gripper_version_numbers_[0] == 3 && gripper_version_numbers_[1] > 4)
-    || (gripper_version_numbers_[0] == 3 && gripper_version_numbers_[1] == 4 && gripper_version_numbers_[2] >= 3);
+  return xarm_gripper_versions_[0] > 3
+    || (xarm_gripper_versions_[0] == 3 && xarm_gripper_versions_[1] > 4)
+    || (xarm_gripper_versions_[0] == 3 && xarm_gripper_versions_[1] == 4 && xarm_gripper_versions_[2] >= 3);
 }
 
 int XArmAPI::_get_gripper_status(int *status) {
@@ -143,7 +151,7 @@ int XArmAPI::_check_gripper_position(int target_pos, fp32 timeout) {
   long long expired = get_system_time() + (long long)(timeout * 1000);
   while (timeout <= 0 || get_system_time() < expired) {
     ret2 = get_gripper_position(&pos_tmp);
-    if (xarm_gripper_error_code_ != 0) return API_CODE::END_EFFECTOR_HAS_FAULT;
+    if (xarm_gripper_error_ != 0) return API_CODE::END_EFFECTOR_HAS_FAULT;
     failed_cnt = ret2 == 0 ? 0 : failed_cnt + 1;
     if (ret2 == 0) {
       cur_pos = pos_tmp;
@@ -242,7 +250,7 @@ int XArmAPI::set_gripper_position(int pos, bool wait, fp32 timeout, bool wait_mo
   int err = 0;
   get_gripper_err_code(&err);
   ret = _check_modbus_code(ret);
-  if (xarm_gripper_error_code_ != 0) return API_CODE::END_EFFECTOR_HAS_FAULT;
+  if (xarm_gripper_error_ != 0) return API_CODE::END_EFFECTOR_HAS_FAULT;
   if (wait && ret == 0) {
     if (_gripper_is_support_status()) {
       return _check_gripper_status(timeout);
@@ -298,7 +306,7 @@ int XArmAPI::set_gripper_g2_position(int pos, int speed, int force, bool wait, f
   int err = 0;
   get_gripper_err_code(&err);
   ret = _check_modbus_code(ret);
-  if (xarm_gripper_error_code_ != 0) return API_CODE::END_EFFECTOR_HAS_FAULT;
+  if (xarm_gripper_error_ != 0) return API_CODE::END_EFFECTOR_HAS_FAULT;
   if (wait && ret == 0) {
     if (_gripper_is_support_status()) {
       return _check_gripper_status(timeout);
@@ -317,7 +325,7 @@ int XArmAPI::clean_gripper_error(void) {
   int err = 0;
   get_gripper_err_code(&err);
   ret = _check_modbus_code(ret);
-  return xarm_gripper_error_code_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
+  return xarm_gripper_error_ != 0 ? API_CODE::END_EFFECTOR_HAS_FAULT : ret;
 }
 
 int XArmAPI::open_lite6_gripper(bool sync) {

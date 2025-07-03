@@ -296,7 +296,7 @@ void XArmAPI::_init(void) {
   ignore_error_ = false;
   ignore_state_ = false;
 
-  gripper_is_enabled_ = false;
+  xarm_gripper_is_enabled_ = false;
   bio_gripper_is_enabled_ = false;
   robotiq_is_activated_ = false;
   last_report_time_ = get_system_time();
@@ -317,15 +317,18 @@ void XArmAPI::_init(void) {
   cgpio_output_conf = new int[16]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   cmd_timeout_ = -1;
 
-  xarm_gripper_error_code_ = 0;
-  bio_gripper_error_code_ = 0;
+  xarm_gripper_error_ = 0;
+  bio_gripper_error_ = 0;
   robotiq_error_code_ = 0;
-  gripper_version_numbers_[0] = -1;
-  gripper_version_numbers_[1] = -1;
-  gripper_version_numbers_[2] = -1;
+  xarm_gripper_versions_[0] = -1;
+  xarm_gripper_versions_[1] = -1;
+  xarm_gripper_versions_[2] = -1;
 
   linear_track_baud_ = -1;
   linear_track_speed_ = 0;
+
+  bio_gripper_version_ = 0;
+  bio_gripper_mode_ = -1;
 
   memset(&linear_track_status, 0, sizeof(linear_track_status));
   linear_track_status.sci = 1;

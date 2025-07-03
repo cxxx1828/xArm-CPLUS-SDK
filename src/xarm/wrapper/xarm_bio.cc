@@ -86,12 +86,12 @@ int XArmAPI::set_bio_gripper_speed(int speed) {
   return ret;
 }
 
-int XArmAPI::_get_bio_gripper_sn(unsigned char sn[32])
+int XArmAPI::_get_bio_gripper_sn(unsigned char *sn)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   unsigned char rx_data[40] = { 0 };
   int ret = _get_bio_gripper_register(rx_data, 0x0B10, 16);
-  if (ret == API_CODE::MODBUS_ERR_LENG)
+  if (ret == API_CODE::MODBUS_ERR_LENG || rx_data[2] == 2)
   {
     bio_gripper_version_ = 1;
     return ret;
@@ -101,9 +101,10 @@ int XArmAPI::_get_bio_gripper_sn(unsigned char sn[32])
     bio_gripper_version_ = 0;
     return ret;
   }    
-  else{
+  else {
     bio_gripper_version_ = 2;
-    memcpy(sn, &rx_data[3], 32);
+    if (sn != NULL)
+      memcpy(sn, &rx_data[3], 32);
     return ret;
   }
 }
@@ -117,6 +118,19 @@ int XArmAPI::_get_bio_gripper_control_mode(int *mode)
   return ret;
 }
 
+int XArmAPI::_check_bio_gripper_version()
+{
+  if (bio_gripper_version_ == 0)
+  {
+    _get_bio_gripper_sn(NULL);
+  }
+  if (bio_gripper_version_ == 2 && bio_gripper_mode_ == -1)
+  {
+    _get_bio_gripper_control_mode(&bio_gripper_mode_);
+  }
+  return 0;
+}
+
 int XArmAPI::set_bio_gripper_control_mode(int mode)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
@@ -128,6 +142,8 @@ int XArmAPI::set_bio_gripper_control_mode(int mode)
   _bio_gripper_send_modbus(params2, 6, rx_data, 6);
   sleep_milliseconds(600);
   bio_gripper_speed_ = 0;
+  bio_gripper_version_ = 0;
+  bio_gripper_mode_ = -1;
   return ret;
 }
 
@@ -138,6 +154,7 @@ int XArmAPI::set_bio_gripper_force(int force)
   unsigned char params[6] = { 0x08, 0x06, 0x05, 0x06, 0x00, val };
   unsigned char rx_data[6] = { 0 };
   int ret = _bio_gripper_send_modbus(params, 6, rx_data, 6);
+  if (ret == 0) { bio_gripper_force_ = force; }
   return ret;
 }
 
@@ -147,22 +164,17 @@ int XArmAPI::_set_bio_gripper_position(int pos, int speed, int force, bool wait,
   get_bio_gripper_status(&status);
   if (!bio_gripper_is_enabled_) set_bio_gripper_enable(true);
   speed = speed > 4000 ? 4000 : speed;
+  speed = speed <= 0 ? 2000 : speed;
   if (speed > 0 && speed != bio_gripper_speed_) { set_bio_gripper_speed(speed); }
-  if (bio_gripper_version_ == 0)
-  {
-    unsigned char sn[32];
-    _get_bio_gripper_sn(sn);
+
+  _check_bio_gripper_version();
+  int pos_pluse = pos;
+  if (bio_gripper_mode_ == 1) {
+    pos = (int)(pos * 3.7342 - 265.13);
   }
-  if (bio_gripper_version_ == 2)
-  {
-    int mode = 0;
-    int code = _get_bio_gripper_control_mode(&mode);
-    if (mode == 1) {
-      // pos = int(pos * 3.798 - 269.620);
-      pos = int(pos * 3.7342 - 265.13);
-    }
+  if (bio_gripper_version_ == 2) {
     force = force > 100 ? 100 : force;
-    if (force >= 1)
+    if (force > 0 && force != bio_gripper_force_)
       set_bio_gripper_force(force);
   }
 
@@ -201,19 +213,10 @@ int XArmAPI::set_bio_gripper_g2_position(int pos, int speed, int force, bool wai
   speed = speed < 500 ? 500 : speed > 4000 ? 4000 : speed;
   force = force < 1 ? 1 : force > 100 ? 100 : force;
 
-  if (bio_gripper_version_ == 0)
-  {
-    unsigned char sn[32];
-    _get_bio_gripper_sn(sn);
-  }
+  _check_bio_gripper_version();
   int pos_pluse = pos;
-  if (bio_gripper_version_ == 2)
-  {
-    int mode = 0;
-    int code = _get_bio_gripper_control_mode(&mode);
-    if (mode == 1) {
-      pos_pluse = (int)(pos * 3.7342 - 265.13);
-    }
+  if (bio_gripper_mode_ == 1) {
+    pos_pluse = (int)(pos * 3.7342 - 265.13);
   }
 
   unsigned char data_frame[17] = { 0x08, 0x10, 0x0C, 0x00, 0x00, 0x05, 0x0A, 0x00, 0x01 };
@@ -229,7 +232,9 @@ int XArmAPI::set_bio_gripper_g2_position(int pos, int speed, int force, bool wai
 }
 
 int XArmAPI::open_bio_gripper(int speed, bool wait, fp32 timeout, bool wait_motion) {
-  return _set_bio_gripper_position(130, speed, 100, wait, timeout, wait_motion);
+  _check_bio_gripper_version();
+  int pos = bio_gripper_version_ == 2 ? 150 : 130;
+  return _set_bio_gripper_position(pos, speed, 100, wait, timeout, wait_motion);
 }
 
 int XArmAPI::open_bio_gripper(bool wait, fp32 timeout, bool wait_motion) {
@@ -237,7 +242,9 @@ int XArmAPI::open_bio_gripper(bool wait, fp32 timeout, bool wait_motion) {
 }
 
 int XArmAPI::close_bio_gripper(int speed, bool wait, fp32 timeout, bool wait_motion) {
-  return _set_bio_gripper_position(50, speed, 100, wait, timeout, wait_motion);
+  _check_bio_gripper_version();
+  int pos = bio_gripper_version_ == 2 ? 71 : 50;
+  return _set_bio_gripper_position(pos, speed, 100, wait, timeout, wait_motion);
 }
 
 int XArmAPI::close_bio_gripper(bool wait, fp32 timeout, bool wait_motion) {
@@ -254,7 +261,7 @@ int XArmAPI::get_bio_gripper_status(int *status) {
       int err;
       get_bio_gripper_error(&err);
     }
-    bio_gripper_error_code_ = (*status & 0x03) == BIO_STATE::IS_FAULT ? bio_gripper_error_code_ : 0;
+    bio_gripper_error_ = (*status & 0x03) == BIO_STATE::IS_FAULT ? bio_gripper_error_ : 0;
     bio_gripper_is_enabled_ = ((*status >> 2) & 0x03) == BIO_STATE::IS_ENABLED ? true : false;
   }
   return ret;
@@ -265,7 +272,7 @@ int XArmAPI::get_bio_gripper_error(int *err) {
   unsigned char rx_data[5] = { 0 };
   int ret = _get_bio_gripper_register(rx_data, 0x0F);
   *err = (rx_data[3] << 8) + rx_data[4];
-  if (ret == 0) bio_gripper_error_code_ = *err;
+  if (ret == 0) bio_gripper_error_ = *err;
   return ret;
 }
 
@@ -279,11 +286,23 @@ int XArmAPI::clean_bio_gripper_error(void) {
   return ret;
 }
 
-int XArmAPI::get_bio_gripper_position(fp32 *pos)
+int XArmAPI::get_bio_gripper_g2_position(int *pos)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
+
+  _check_bio_gripper_version();
+
   unsigned char rx_data[7] = { 0 };
-  int ret = _get_bio_gripper_register(rx_data, 0x0700, 2);
-  *pos = (float)((rx_data[5] << 8) + rx_data[6]);
+  int ret = _get_bio_gripper_register(rx_data, bio_gripper_version_ == 2 ? 0x0702 : 0x0700, 2);
+  int pulse = bin8_to_32(&rx_data[3]);
+  int p = pulse;
+  if (bio_gripper_version_ == 2) {
+    p = (int)round((p + 265.13) / 3.7342);
+    p = p < 71 ? 71 : p > 150 ? 150 : p;
+  }
+  else {
+    p = p > 100 ? 150 : 71;
+  }
+  *pos = p;
   return ret;
 }

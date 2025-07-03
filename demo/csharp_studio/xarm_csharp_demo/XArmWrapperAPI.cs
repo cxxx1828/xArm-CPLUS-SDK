@@ -248,6 +248,11 @@ namespace xarm_csharp_demo
             return XArmAPI.get_gripper_position(ref pos, robot_instance_id);
         }
 
+        public int get_gripper_g2_position(ref int pos)
+        {
+            return XArmAPI.get_gripper_g2_position(ref pos, robot_instance_id);
+        }
+
         public int get_gripper_err_code(ref int err)
         {
             return XArmAPI.get_gripper_err_code(ref err, robot_instance_id);
@@ -572,6 +577,11 @@ namespace xarm_csharp_demo
         public int close_bio_gripper(int speed = 0, bool wait = true, float timeout = 5, bool wait_motion = true)
         {
             return XArmAPI.close_bio_gripper(speed, wait, timeout, wait_motion, robot_instance_id);
+        }
+
+        public int get_bio_gripper_g2_position(ref int pos)
+        {
+            return XArmAPI.get_bio_gripper_g2_position(ref pos, robot_instance_id);
         }
 
         public int get_bio_gripper_status(ref int status)

@@ -811,8 +811,14 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_gripper_position(float *pos)__
-  > Get the gripper position
+- __int get_gripper_position(int *pos)__
+  > Get the gripper position (pulse)
+  > 
+  > @param pos: used to store the results obtained  
+  > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
+- __int get_gripper_g2_position(int *pos)__
+  > Get the position (mm) of the xArm Gripper G2 
   > 
   > @param pos: used to store the results obtained  
   > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
@@ -1598,6 +1604,12 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
+- __int get_bio_gripper_g2_position(int *pos)__
+  > Get the position (mm) of the xArm Gripper G2 
+  > 
+  > @param pos: used to store the results obtained  
+  > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
 - __int set_bio_gripper_g2_position(int pos, int speed = 2000, int force=100, bool wait = true, fp32 timeout = 10, bool wait_motion = true)__
   > Set the position of the BIO Gripper G2
   > 
@@ -1695,7 +1707,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @param ret_length: the length of the response data  
   > @param host_id: host id  
   > &ensp;&ensp;&ensp;&ensp;9: END RS485  
-  > &ensp;&ensp;&ensp;&ensp;10: Controller RS485  
+  > &ensp;&ensp;&ensp;&ensp;11: Controller RS485  
   > @param is_transparent_transmission: whether to choose transparent transmission, default is false  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.11.0 
   > @param use_503_port: whether to use port 503 for communication, default is false  
@@ -1745,11 +1757,17 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;arm->set_collision_tool_model(21, 2, radius, height)  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param radius: the radius of cylinder, (unit: mm)  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param height: the height of cylinder, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x_offset: offset in the x direction, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y_offset: offset in the y direction, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z_offset: offset in the z direction, (unit: mm)  
   > &ensp;&ensp;&ensp;&ensp;22: Cuboid, need additional parameters x, y, z  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;arm->set_collision_tool_model(22, 3, x, y, z)  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x: the length of the cuboid in the x coordinate direction, (unit: mm)  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y: the length of the cuboid in the y coordinate direction, (unit: mm)  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z: the length of the cuboid in the z coordinate direction, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x_offset: offset in the x direction, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y_offset: offset in the y direction, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z_offset: offset in the z direction, (unit: mm)  
   > 
   > @param n: the count of the additional parameters  
   > @param ...: additional parameters  

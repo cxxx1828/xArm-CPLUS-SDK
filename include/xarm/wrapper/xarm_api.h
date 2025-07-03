@@ -766,13 +766,21 @@ public:
   int set_gripper_mode(int mode);
 
   /**
-   * @brief Get the gripper position
+   * @brief Get the gripper position (pulse)
    * 
    * @param pos: used to store the results obtained
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
   int get_gripper_position(int *pos);
   int get_gripper_position(fp32 *pos);
+
+  /**
+   * @brief Get the position (mm) of the xArm Gripper G2
+   * 
+   * @param pos: used to store the results obtained
+   * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+   */
+  int get_gripper_g2_position(int *pos);
 
   /**
    * @brief Set the gripper position
@@ -1689,12 +1697,16 @@ public:
   int get_bio_gripper_status(int *status);
 
   /**
-   * @brief Get the target pos of the bio gripper (not real-time pos)
+   * @brief Get the position (mm) of the BIO Gripper G2
    * 
-   * @param err: the target pos of the bio gripper
+   * @param err: the pos of the BIO gripper G2
    * @return: See the code documentation for details.
    */
-  int get_bio_gripper_position(fp32 *pos);
+  int get_bio_gripper_g2_position(int *pos);
+   /**
+   * only used by ros driver
+   */
+  int get_bio_gripper_position(int *pos) { return get_bio_gripper_g2_position(pos); }
 
   /**
    * @brief Get the error code of the bio gripper
@@ -1746,7 +1758,7 @@ public:
    * @param ret_length: the length of the response data
    * @param host_id: host id, default is 9
    *   9: END RS485
-   *  10: Controller RS485
+   *  11: Controller RS485
    * @param is_transparent_transmission: whether to choose transparent transmission, default is false
    *  Note: only available if firmware_version >= 1.11.0
    * @param use_503_port: whether to use port 503 for communication, default is false
@@ -1796,11 +1808,17 @@ public:
    *    arm->set_collision_tool_model(21, 2, radius, height)
    *    @param radius: the radius of cylinder, (unit: mm)
    *    @param height: the height of cylinder, (unit: mm)
+   *    @param x_offset: offset in the x direction, (unit: mm)
+   *    @param y_offset: offset in the y direction, (unit: mm)
+   *    @param z_offset: offset in the z direction, (unit: mm)
    *  22: Cuboid, need additional parameters x, y, z
    *    arm->set_collision_tool_model(22, 3, x, y, z)
    *    @param x: the length of the cuboid in the x coordinate direction, (unit: mm)
    *    @param y: the length of the cuboid in the y coordinate direction, (unit: mm)
    *    @param z: the length of the cuboid in the z coordinate direction, (unit: mm)
+   *    @param x_offset: offset in the x direction, (unit: mm)
+   *    @param y_offset: offset in the y direction, (unit: mm)
+   *    @param z_offset: offset in the z direction, (unit: mm)
    * @param n: the count of the additional parameters
    * @param ...: additional parameters
    * @return: See the code documentation for details.
@@ -2874,6 +2892,7 @@ private:
   int _bio_gripper_wait_enable_completed(fp32 timeout = 3);
   int _get_bio_gripper_sn(unsigned char sn[32]);
   int _get_bio_gripper_control_mode(int *mode);
+  int _check_bio_gripper_version();
   int _set_bio_gripper_position(int pos, int speed = 0, int force=50, bool wait = true, fp32 timeout = 5, bool wait_motion = true);
 
   int _check_gripper_position(int target_pos, fp32 timeout = 10);
@@ -2946,17 +2965,21 @@ private:
   fp32 rot_msg_[2];
 
   int modbus_baud_;
-  int bio_gripper_speed_;
-  bool gripper_is_enabled_;
-  bool bio_gripper_is_enabled_;
   bool robotiq_is_activated_;
-  int xarm_gripper_error_code_;
-  int bio_gripper_error_code_;
   int robotiq_error_code_;
   int linear_track_baud_;
   int linear_track_speed_;
-  int gripper_version_numbers_[3];
+
+  bool xarm_gripper_is_enabled_;
+  int xarm_gripper_error_;
+  int xarm_gripper_versions_[3];
+
+  bool bio_gripper_is_enabled_;
+  int bio_gripper_speed_;
+  int bio_gripper_force_;
   int bio_gripper_version_;
+  int bio_gripper_mode_;
+  int bio_gripper_error_;
 
   long long last_report_time_;
   long long max_report_interval_;

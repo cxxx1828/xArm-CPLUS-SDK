@@ -79,12 +79,15 @@ void XArmAPI::_update_old(unsigned char *rx_data) {
     if (reset_tgpio_params) {
       modbus_baud_ = -1;
       robotiq_is_activated_ = false;
-      gripper_is_enabled_ = false;
+      xarm_gripper_is_enabled_ = false;
       bio_gripper_is_enabled_ = false;
       bio_gripper_speed_ = -1;
-      gripper_version_numbers_[0] = -1;
-      gripper_version_numbers_[1] = -1;
-      gripper_version_numbers_[2] = -1;
+      bio_gripper_force_ = -1;
+      bio_gripper_version_ = 0;
+      bio_gripper_mode_ = -1;
+      xarm_gripper_versions_[0] = -1;
+      xarm_gripper_versions_[1] = -1;
+      xarm_gripper_versions_[2] = -1;
     }
     if (reset_linear_track_params) {
       linear_track_baud_ = -1;
@@ -257,12 +260,15 @@ void XArmAPI::_update(unsigned char *rx_data) {
     if (reset_tgpio_params) {
       modbus_baud_ = -1;
       robotiq_is_activated_ = false;
-      gripper_is_enabled_ = false;
+      xarm_gripper_is_enabled_ = false;
       bio_gripper_is_enabled_ = false;
       bio_gripper_speed_ = -1;
-      gripper_version_numbers_[0] = -1;
-      gripper_version_numbers_[1] = -1;
-      gripper_version_numbers_[2] = -1;
+      bio_gripper_force_ = -1;
+      bio_gripper_version_ = 0;
+      bio_gripper_mode_ = -1;
+      xarm_gripper_versions_[0] = -1;
+      xarm_gripper_versions_[1] = -1;
+      xarm_gripper_versions_[2] = -1;
     }
     if (reset_linear_track_params) {
       linear_track_baud_ = -1;

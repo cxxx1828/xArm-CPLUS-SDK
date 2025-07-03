@@ -242,17 +242,22 @@ int XArmAPI::set_collision_tool_model(int tool_type, int n, ...) {
   }
   if (n <= (tool_type == COLLISION_TOOL_TYPE::BOX ? 2 : tool_type == COLLISION_TOOL_TYPE::CYLINDER ? 1 : 0))
     return API_CODE::PARAM_ERROR;
-  fp32 *params = new fp32[n]();
-  va_list args;
-  va_start(args, n);
-  int inx = 0;
-  while (inx < n)
-  {
-    params[inx] = (fp32)va_arg(args, double);
-    inx++;
+  int params_len = tool_type == COLLISION_TOOL_TYPE::BOX ? 6 : tool_type == COLLISION_TOOL_TYPE::CYLINDER ? 5 : 0;
+  params_len = params_len < n ? params_len : n;
+  fp32 *params = new fp32[params_len]();
+  memset(params, 0, sizeof(fp32) * params_len);
+  if (tool_type == COLLISION_TOOL_TYPE::BOX || tool_type == COLLISION_TOOL_TYPE::CYLINDER) {
+    va_list args;
+    va_start(args, n);
+    int inx = 0;
+    while (inx < n && inx < params_len)
+    {
+      params[inx] = (fp32)va_arg(args, double);
+      inx++;
+    }
+    va_end(args);
   }
-  va_end(args);
-  int ret = core->set_collision_tool_model(tool_type, n, params);
+  int ret = core->set_collision_tool_model(tool_type, params_len, params);
   delete[] params;
   return ret;
 }

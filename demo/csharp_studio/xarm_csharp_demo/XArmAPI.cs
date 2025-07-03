@@ -127,6 +127,8 @@ namespace xarm_csharp_demo
         [DllImport("xarm.dll")]
         public static extern int get_gripper_position(ref int pos, int instance_id = -1);
         [DllImport("xarm.dll")]
+        public static extern int get_gripper_g2_position(ref int pos, int instance_id = -1);
+        [DllImport("xarm.dll")]
         public static extern int get_gripper_err_code(ref int err, int instance_id = -1);
         [DllImport("xarm.dll")]
         public static extern int clean_gripper_error(int instance_id = -1);
@@ -258,6 +260,8 @@ namespace xarm_csharp_demo
         public static extern int open_bio_gripper(int speed = 0, bool wait = true, float timeout = 5, bool wait_motion = true, int instance_id = -1);
         [DllImport("xarm.dll")]
         public static extern int close_bio_gripper(int speed = 0, bool wait = true, float timeout = 5, bool wait_motion = true, int instance_id = -1);
+        [DllImport("xarm.dll")]
+        public static extern int get_bio_gripper_g2_position(ref int pos, int instance_id = -1);
         [DllImport("xarm.dll")]
         public static extern int get_bio_gripper_status(ref int status, int instance_id = -1);
         [DllImport("xarm.dll")]

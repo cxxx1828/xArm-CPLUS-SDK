@@ -215,6 +215,9 @@ namespace XArmWrapper
   int __stdcall get_gripper_position(int *pos, int instance_id) {
     return get_instance(instance_id)->get_gripper_position(pos);
   }
+  int __stdcall get_gripper_g2_position(int *pos, int instance_id) {
+    return get_instance(instance_id)->get_gripper_g2_position(pos);
+  }
   int __stdcall get_gripper_err_code(int *err, int instance_id) {
     return get_instance(instance_id)->get_gripper_err_code(err);
   }
@@ -417,6 +420,9 @@ namespace XArmWrapper
   }
   int __stdcall close_bio_gripper(int speed, bool wait, fp32 timeout, bool wait_motion, int instance_id) {
     return get_instance(instance_id)->close_bio_gripper(speed, wait, timeout, wait_motion);
+  }
+  int __stdcall get_bio_gripper_g2_position(int *pos, int instance_id) {
+    return get_instance(instance_id)->get_bio_gripper_g2_position(pos);
   }
   int __stdcall get_bio_gripper_status(int *status, int instance_id) {
     return get_instance(instance_id)->get_bio_gripper_status(status);
