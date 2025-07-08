@@ -614,6 +614,11 @@ namespace xarm_csharp_demo
             return XArmAPI.get_tgpio_modbus_baudrate(ref baud, robot_instance_id);
         }
 
+        public int set_tgpio_modbus_use_503_port(bool use_503_port = true)
+        {
+            return XArmAPI.set_tgpio_modbus_use_503_port(use_503_port, robot_instance_id);
+        }
+
         public int getset_tgpio_modbus_data(byte[] modbus_data, int modbus_length, byte[] ret_data, int ret_length, byte host_id = 9, bool is_transparent_transmission = false, bool use_503_port = false)
         {
             return XArmAPI.getset_tgpio_modbus_data(modbus_data, modbus_length, ret_data, ret_length, host_id, is_transparent_transmission, use_503_port, robot_instance_id);

@@ -363,25 +363,34 @@ int XArmAPI::get_tgpio_modbus_baudrate(int *baud) {
   return ret;
 }
 
+int XArmAPI::set_tgpio_modbus_use_503_port(bool use_503_port)
+{
+  if (use_503_port) {
+    if (!_is_connected_503() && _connect_503() != 0) {
+      core->tgpio_set_modbus_func = std::bind(&UxbusCmdTcp::tgpio_set_modbus, core, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6);
+      return API_CODE::RET_IS_INVALID;
+    }
+    core->tgpio_set_modbus_func = std::bind(&UxbusCmdTcp::tgpio_set_modbus, core503_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6);
+  }
+  else {
+    core->tgpio_set_modbus_func = std::bind(&UxbusCmdTcp::tgpio_set_modbus, core, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6);
+  }
+  return 0;
+}
+
 int XArmAPI::getset_tgpio_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id, bool is_transparent_transmission, bool use_503_port) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   unsigned char *rx_data = new unsigned char[ret_length + 1]();
   int ret = 0;
-  if (is_transparent_transmission) {
-    if (use_503_port) {
-      if (!_is_connected_503() && _connect_503() != 0) {
-        delete[] rx_data;
-        return API_CODE::NOT_CONNECTED;
-      }
-      ret = core503_->tgpio_set_modbus(modbus_data, modbus_length, rx_data, host_id, 0.0, true);
-      
+  if (use_503_port) {
+    if (!_is_connected_503() && _connect_503() != 0) {
+      delete[] rx_data;
+      return API_CODE::NOT_CONNECTED;
     }
-    else {
-      ret = core->tgpio_set_modbus(modbus_data, modbus_length, rx_data, host_id, 0.0, true);
-    }
+    ret = core503_->tgpio_set_modbus_func(modbus_data, modbus_length, rx_data, host_id, 0.0, is_transparent_transmission);
   }
   else {
-    ret = core->tgpio_set_modbus(modbus_data, modbus_length, rx_data, host_id);
+    ret = core->tgpio_set_modbus_func(modbus_data, modbus_length, rx_data, host_id, 0.0, is_transparent_transmission);
   }
   ret = _check_modbus_code(ret, rx_data);
   memcpy(ret_data, rx_data + 1, ret_length);

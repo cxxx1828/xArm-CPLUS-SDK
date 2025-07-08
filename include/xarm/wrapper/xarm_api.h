@@ -1749,6 +1749,8 @@ public:
    */
   int get_tgpio_modbus_baudrate(int *baud);
 
+  int set_tgpio_modbus_use_503_port(bool use_503_port = true);
+
   /**
    * @brief Send the modbus data to the tool gpio
    * 

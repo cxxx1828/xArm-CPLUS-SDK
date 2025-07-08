@@ -27,6 +27,7 @@ UxbusCmd::UxbusCmd(void) {
   last_recv_ms = get_system_time();
   has_feedback_key_transid_func_ = false;
   feedback_type_ = 0;
+  tgpio_set_modbus_func = std::bind(&UxbusCmd::tgpio_set_modbus, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6);
 }
 
 UxbusCmd::UxbusCmd(std::function<void (std::string, int, unsigned char)> set_feedback_key_transid) {
@@ -36,6 +37,7 @@ UxbusCmd::UxbusCmd(std::function<void (std::string, int, unsigned char)> set_fee
   has_feedback_key_transid_func_ = true;
   set_feedback_key_transid_ = set_feedback_key_transid;
   feedback_type_ = 0;
+  tgpio_set_modbus_func = std::bind(&UxbusCmd::tgpio_set_modbus, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6);
 }
 
 UxbusCmd::~UxbusCmd(void) {}
@@ -1023,7 +1025,7 @@ int UxbusCmd::gripper_modbus_w16s(int addr, int value, int count) {
   else // count == 2
     bin32_to_8(value, &txdata[7]);
   // fp32_to_hex(value, &txdata[7]);
-  int ret = tgpio_set_modbus(txdata, count * 2 + 7, rx_data);
+  int ret = tgpio_set_modbus_func(txdata, count * 2 + 7, rx_data, UXBUS_CONF::TGPIO_HOST_ID, 0.0, false);
   delete[] txdata;
   delete[] rx_data;
   return ret;
@@ -1035,7 +1037,7 @@ int UxbusCmd::gripper_modbus_r16s(int addr, int count, unsigned char *rx_data) {
   txdata[1] = 0x03;
   bin16_to_8(addr, &txdata[2]);
   bin16_to_8(count, &txdata[4]);
-  int ret = tgpio_set_modbus(txdata, 6, rx_data);
+  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::TGPIO_HOST_ID, 0.0, false);
   delete[] txdata;
   return ret;
 }
@@ -1752,7 +1754,7 @@ int UxbusCmd::track_modbus_r16s(int addr, unsigned char *rx_data, int len, unsig
   txdata[1] = fcode;
   bin16_to_8(addr, &txdata[2]);
   bin16_to_8(len, &txdata[4]);
-  int ret = tgpio_set_modbus(txdata, 6, rx_data, UXBUS_CONF::LINEAR_TRACK_HOST_ID, (float)0.001);
+  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::LINEAR_TRACK_HOST_ID, (float)0.001, false);
   delete[] txdata;
   return ret;
 }
@@ -1766,7 +1768,7 @@ int UxbusCmd::track_modbus_w16s(int addr, unsigned char *send_data, int len, uns
   bin16_to_8(len, &txdata[4]);
   txdata[6] = len * 2;
   memcpy(&txdata[7], send_data, len * 2);
-  int ret = tgpio_set_modbus(txdata, len * 2 + 7, rx_data, UXBUS_CONF::LINEAR_TRACK_HOST_ID, (float)0.001);
+  int ret = tgpio_set_modbus_func(txdata, len * 2 + 7, rx_data, UXBUS_CONF::LINEAR_TRACK_HOST_ID, (float)0.001, false);
   delete[] txdata;
   return ret;
 }

@@ -343,6 +343,8 @@ public:
   bool state_is_ready;
   long long last_recv_ms;
 
+  std::function<int (unsigned char *, int, unsigned char *, unsigned char, float, bool)> tgpio_set_modbus_func;
+
 protected:
   std::mutex mutex_;
 

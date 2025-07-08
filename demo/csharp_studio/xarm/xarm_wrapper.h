@@ -151,6 +151,7 @@ namespace XArmWrapper {
   extern "C" __declspec(dllexport) int __stdcall set_tgpio_modbus_baudrate(int baud, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_tgpio_modbus_baudrate(int *baud, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall getset_tgpio_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id = 9, bool is_transparent_transmission = false, bool use_503_port = false, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall set_tgpio_modbus_use_503_port(bool use_503_port = true, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_self_collision_detection(bool on, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_simulation_robot(bool on, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall vc_set_joint_velocity(fp32 speeds[7], bool is_sync = true, fp32 duration = -1.0, int instance_id = -1);

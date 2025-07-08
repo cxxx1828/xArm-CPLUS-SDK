@@ -446,6 +446,9 @@ namespace XArmWrapper
   int __stdcall getset_tgpio_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id, bool is_transparent_transmission, bool use_503_port, int instance_id) {
     return get_instance(instance_id)->getset_tgpio_modbus_data(modbus_data, modbus_length, ret_data, ret_length, host_id, is_transparent_transmission, use_503_port);
   }
+  int __stdcall set_tgpio_modbus_use_503_port(bool use_503_port, int instance_id) {
+    return get_instance(instance_id)->set_tgpio_modbus_use_503_port(use_503_port);
+  }
   int __stdcall set_self_collision_detection(bool on, int instance_id) {
     return get_instance(instance_id)->set_self_collision_detection(on);
   }
