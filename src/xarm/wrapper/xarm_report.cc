@@ -65,16 +65,16 @@ void XArmAPI::_update_old(unsigned char *rx_data) {
     if (error_code != err || warn_code != warn) _report_error_warn_changed_callback();
 
     bool reset_tgpio_params = false;
-    bool reset_linear_track_params = false;
+    bool reset_linear_motor_params = false;
     if (error_code > 0 && error_code <= 17) {
       reset_tgpio_params = true;
-      reset_linear_track_params = true;
+      reset_linear_motor_params = true;
     }
     else if (error_code == 19 || error_code == 28) {
       reset_tgpio_params = true;
     }
     else if (error_code == 111) {
-      reset_linear_track_params = true;
+      reset_linear_motor_params = true;
     }
     if (reset_tgpio_params) {
       modbus_baud_ = -1;
@@ -89,10 +89,10 @@ void XArmAPI::_update_old(unsigned char *rx_data) {
       xarm_gripper_versions_[1] = -1;
       xarm_gripper_versions_[2] = -1;
     }
-    if (reset_linear_track_params) {
-      linear_track_baud_ = -1;
-      linear_track_speed_ = 0;
-      linear_track_status.is_enabled = 0;
+    if (reset_linear_motor_params) {
+      linear_motor_baud_ = -1;
+      linear_motor_speed_ = 0;
+      linear_motor_status.is_enabled = 0;
     }
 
     hex_to_nfp32(&data_fp[9], angles, 7);
@@ -246,16 +246,16 @@ void XArmAPI::_update(unsigned char *rx_data) {
     if (error_code != err || warn_code != warn) _report_error_warn_changed_callback();
 
     bool reset_tgpio_params = false;
-    bool reset_linear_track_params = false;
+    bool reset_linear_motor_params = false;
     if (error_code > 0 && error_code <= 17) {
       reset_tgpio_params = true;
-      reset_linear_track_params = true;
+      reset_linear_motor_params = true;
     }
     else if (error_code == 18 || error_code == 19) {
       reset_tgpio_params = true;
     }
     else if (error_code == 111) {
-      reset_linear_track_params = true;
+      reset_linear_motor_params = true;
     }
     if (reset_tgpio_params) {
       modbus_baud_ = -1;
@@ -270,10 +270,10 @@ void XArmAPI::_update(unsigned char *rx_data) {
       xarm_gripper_versions_[1] = -1;
       xarm_gripper_versions_[2] = -1;
     }
-    if (reset_linear_track_params) {
-      linear_track_baud_ = -1;
-      linear_track_speed_ = 0;
-      linear_track_status.is_enabled = 0;
+    if (reset_linear_motor_params) {
+      linear_motor_baud_ = -1;
+      linear_motor_speed_ = 0;
+      linear_motor_status.is_enabled = 0;
     }
 
     if (!is_sync_ && error_code != 0 && state != 4 && state != 5) {

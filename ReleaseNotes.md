@@ -2,6 +2,9 @@
 
 ## Update Summary
 
+- > ### 1.17.0
+  - Change some API names
+
 - > ### 1.16.0
   - Added parameter to support get raw data of the Six-axis Force Torque Sensor
   - Added an interface to control xArm Gripper G2
@@ -57,7 +60,7 @@
 
   - The Velocity interface supports the duration parameter (requires firmware 1.8.0 or higher)
   - Added identification interface (current identification and torque identification) (requires firmware 1.8.0 or higher)
-  - Support linear track interface (requires firmware 1.8.0 or higher)
+  - Support linear motor interface (requires firmware 1.8.0 or higher)
   - Fix the problem of not waiting when the timeout parameter of the motion interface is greater than 0
   - Support macos compilation
   - Fix some bugs

@@ -122,7 +122,7 @@ bool XArmAPI::_gripper_is_support_status(void) {
     || (xarm_gripper_versions_[0] == 3 && xarm_gripper_versions_[1] == 4 && xarm_gripper_versions_[2] >= 3);
 }
 
-int XArmAPI::_get_gripper_status(int *status) {
+int XArmAPI::get_gripper_status(int *status) {
   unsigned char val[6] = { 0 };
   int ret = core->gripper_modbus_r16s(0x0000, 1, val);
   ret = _check_modbus_code(ret);
@@ -213,7 +213,7 @@ int XArmAPI::_check_gripper_status(fp32 timeout) {
   int code = API_CODE::WAIT_FINISH_TIMEOUT;
   long long expired = get_system_time() + (long long)(timeout * 1000);
   while (timeout <= 0 || get_system_time() < expired) {
-    ret = _get_gripper_status(&status);
+    ret = get_gripper_status(&status);
     failed_cnt = ret == 0 ? 0 : failed_cnt + 1;
     if (ret == 0) {
       if ((status & 0x03) == 0 || (status & 0x03) == 2) {

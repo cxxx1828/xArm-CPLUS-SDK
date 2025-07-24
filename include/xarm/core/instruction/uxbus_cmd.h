@@ -172,9 +172,9 @@ public:
   int gripper_clean_err(void);
 
   int tgpio_addr_w16(int addr, float value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID, char *add_data = NULL, int add_len = 0);
-  int tgpio_addr_r16(int addr, float *value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
+  int tgpio_addr_r16(int addr, int *value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
   int tgpio_addr_w32(int addr, float value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
-  int tgpio_addr_r32(int addr, float *value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
+  int tgpio_addr_r32(int addr, int *value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
   int tgpio_get_digital(int *io0, int *io1, int *io2 = NULL, int *io3 = NULL, int *io4 = NULL);
   int tgpio_set_digital(int ionum, int value, int sync = -1);
   int tgpio_get_analog1(float *value);
@@ -241,9 +241,9 @@ public:
   int cali_user_pos(float rpy_ub[3], float pos_b_uorg[3], float ret_xyz[3]);
 
   int iden_load(int iden_type, float *rx_data, int num_get, int timeout=500000, float estimated_mass = 0.0);
-  int set_impedance(int coord, int c_axis[6], float M[6], float K[6], float B[6]);
-  int set_impedance_mbk(float M[6], float K[6], float B[6]);
-  int set_impedance_config(int coord, int c_axis[6]);
+  int set_admittance(int coord, int c_axis[6], float M[6], float K[6], float B[6]);
+  int set_admittance_mbk(float M[6], float K[6], float B[6]);
+  int set_admittance_config(int coord, int c_axis[6]);
   int config_force_control(int coord, int c_axis[6], float f_ref[6], float limits[6]);
   int set_force_control_pid(float kp[6], float ki[6], float kd[6], float xe_limit[6]);
   int ft_sensor_set_zero(void);
@@ -253,14 +253,14 @@ public:
   int ft_sensor_app_set(int app_code);
   int ft_sensor_app_get(int *app_code);
   int ft_sensor_get_data(float ft_data[6], bool is_new = true, bool is_raw = false);
-  int ft_sensor_get_config(int *ft_app_status = NULL, int *ft_is_started = NULL, int *ft_type = NULL, int *ft_id = NULL, int *ft_freq = NULL, 
+  int ft_sensor_get_config(int *ft_mode = NULL, int *ft_is_started = NULL, int *ft_type = NULL, int *ft_id = NULL, int *ft_freq = NULL, 
     float *ft_mass = NULL, float *ft_dir_bias = NULL, float ft_centroid[3] = NULL, float ft_zero[6] = NULL, int *imp_coord = NULL, int imp_c_axis[6] = NULL, float M[6] = NULL, float K[6] = NULL, float B[6] = NULL,
     int *f_coord = NULL, int f_c_axis[6] = NULL, float f_ref[6] = NULL, float f_limits[6] = NULL, float kp[6] = NULL, float ki[6] = NULL, float kd[6] = NULL, float xe_limit[6] = NULL);
   int ft_sensor_get_error(int *err);
   int iden_tcp_load(float result[4], float estimated_mass = 0.5);
 
-  int track_modbus_r16s(int addr, unsigned char *data, int len, unsigned char fcode = 0x03);
-  int track_modbus_w16s(int addr, unsigned char *send_data, int len, unsigned char *rx_data);
+  int linear_motor_modbus_r16s(int addr, unsigned char *data, int len, unsigned char fcode = 0x03);
+  int linear_motor_modbus_w16s(int addr, unsigned char *send_data, int len, unsigned char *rx_data);
 
   int set_cartesian_velo_continuous(int on_off);
   int set_allow_approx_motion(int on_off);

@@ -30,8 +30,8 @@ int main(int argc, char **argv) {
   printf("=========================================\n");
 
   int ret;
-  ret = arm->ft_sensor_enable(1);
-  printf("ft_sensor_enable, ret=%d\n", ret);
+  ret = arm->set_ft_sensor_enable(1);
+  printf("set_ft_sensor_enable, ret=%d\n", ret);
   int err;
 
   while (arm->is_connected() && arm->error_code == 0) {
@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
   }
 
 
-  ret = arm->ft_sensor_enable(0);
-  printf("ft_sensor_enable, ret=%d\n", ret);
+  ret = arm->set_ft_sensor_enable(0);
+  printf("set_ft_sensor_enable, ret=%d\n", ret);
 
   arm->disconnect();
 

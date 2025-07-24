@@ -154,16 +154,16 @@ public:
   static const unsigned char FTSENSOR_GET_DATA_OLD = 150;  // only available in firmware version < 1.8.3
   static const unsigned char FTSENSOR_GET_DATA = 200;
   static const unsigned char FTSENSOR_ENABLE = 201;
-  static const unsigned char FTSENSOR_SET_APP = 202;
-  static const unsigned char FTSENSOR_GET_APP = 203;
+  static const unsigned char FTSENSOR_SET_MODE = 202;
+  static const unsigned char FTSENSOR_GET_MODE = 203;
   static const unsigned char IDEN_LOAD = 204;
-  static const unsigned char FTSENSOR_CALI_LOAD_OFFSET = 205;
+  static const unsigned char FTSENSOR_SET_LOAD_OFFSET = 205;
   static const unsigned char FTSENSOR_SET_ZERO = 206;
-  static const unsigned char IMPEDANCE_CONFIG = 207;
+  static const unsigned char ADMITTANCE_CONFIG = 207;
   static const unsigned char FORCE_CTRL_PID = 208;
   static const unsigned char FORCE_CTRL_CONFIG = 209;
-  static const unsigned char IMPEDANCE_CTRL_MBK = 210;
-  static const unsigned char IMPEDANCE_CTRL_CONFIG = 211;
+  static const unsigned char ADMITTANCE_CTRL_MKB = 210;
+  static const unsigned char ADMITTANCE_CTRL_CONFIG = 211;
   static const unsigned char FTSENSOR_GET_CONFIG = 212;
 
   static const unsigned char GET_MAX_JOINT_VELOCITY = 231;
@@ -218,11 +218,13 @@ public:
   static const int SET_TIMEOUT = 2000;  // ms
   static const int GET_TIMEOUT = 2000;  // ms
 
-  static const int TRACK_ID = 1;
+  static const int LINEAR_MOTOR_ID = 1;
+  static const int TRACK_ID = LINEAR_MOTOR_ID; // old
   static const int GRIPPER_ID = 8;
   
   static const int TGPIO_HOST_ID = 9;
-  static const int LINEAR_TRACK_HOST_ID = 11;
+  static const int LINEAR_MOTOR_HOST_ID = 11;
+  static const int LINEAR_TRACK_HOST_ID = LINEAR_MOTOR_HOST_ID;  // old
   
   static const int MASTER_ID = 0xAA;
   static const int SLAVE_ID = 0x55;
@@ -294,9 +296,12 @@ public:
 
   static const int MODE_IS_NOT_CORRECT = 51;
 
-  static const int LINEAR_TRACK_HAS_FAULT = 80;
-  static const int LINEAR_TRACK_SCI_IS_LOW = 81;
-  static const int LINEAR_TRACK_NOT_INIT = 82;
+  static const int LINEAR_MOTOR_HAS_FAULT = 80;
+  static const int LINEAR_MOTOR_SCI_IS_LOW = 81;
+  static const int LINEAR_MOTOR_NOT_INIT = 82;
+  static const int LINEAR_TRACK_HAS_FAULT = LINEAR_MOTOR_HAS_FAULT;  // old name
+  static const int LINEAR_TRACK_SCI_IS_LOW = LINEAR_MOTOR_SCI_IS_LOW; // old name
+  static const int LINEAR_TRACK_NOT_INIT = LINEAR_MOTOR_NOT_INIT;   // old name
 
   static const int WAIT_FINISH_TIMEOUT = 100;
   static const int CHECK_FAILED = 101;

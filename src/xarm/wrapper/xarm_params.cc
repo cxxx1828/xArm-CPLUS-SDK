@@ -183,7 +183,7 @@ int XArmAPI::set_reduced_joint_range(float jrange[14]) {
   return core->set_reduced_jrange(joint_range);
 }
 
-int XArmAPI::set_fense_mode(bool on) {
+int XArmAPI::set_fence_mode(bool on) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   return core->set_fense_on(int(on));
 }
@@ -423,6 +423,12 @@ int XArmAPI::set_ft_collision_reb_distance(float distances[6])
   return core->set_common_param(14, dis, 6);
 }
 
+int XArmAPI::set_ft_admittance_ctrl_threshold(float thresholds[6])
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  return core->set_common_param(6, thresholds, 6);
+}
+
 int XArmAPI::get_ft_collision_detection(int *on_off)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
@@ -451,4 +457,10 @@ int XArmAPI::get_ft_collision_reb_distance(float distances[6])
     }
   }
   return ret;
+}
+
+int XArmAPI::get_ft_admittance_ctrl_threshold(float thresholds[6])
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  return core->get_common_param(6, thresholds, 6);
 }

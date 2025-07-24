@@ -37,9 +37,9 @@ int main(int argc, char **argv) {
   printf("start ft_sensor iden load\n");
   int ret;
   float result[10] = {0};
-  ret = arm->ft_sensor_enable(1);
-  printf("ft_sensor_enable, ret=%d\n", ret);
-  ret = arm->ft_sensor_iden_load(result);
+  ret = arm->set_ft_sensor_enable(1);
+  printf("set_ft_sensor_enable, ret=%d\n", ret);
+  ret = arm->iden_ft_sensor_load_offset(result);
   printf("ret=%d, result=[", ret);
   for (unsigned int i = 0; i < 10; i++) {
     printf("%f%s", result[i], i == 9 ? "" : ", ");
@@ -48,10 +48,10 @@ int main(int argc, char **argv) {
 
   arm->release_iden_progress_changed_callback(true);
 
-  ret = arm->ft_sensor_app_set(0);
-  printf("ft_sensor_app_set, ret=%d\n", ret);
-  ret = arm->ft_sensor_enable(0);
-  printf("ft_sensor_enable, ret=%d\n", ret);
+  ret = arm->set_ft_sensor_mode(0);
+  printf("set_ft_sensor_mode, ret=%d\n", ret);
+  ret = arm->set_ft_sensor_enable(0);
+  printf("set_ft_sensor_enable, ret=%d\n", ret);
 
   arm->disconnect();
 

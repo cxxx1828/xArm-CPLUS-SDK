@@ -68,7 +68,7 @@ public:
   static const unsigned short ANALOG_IO2 = 0x0A17;
 
   static const unsigned short BACK_ORIGIN = 0x0A0A;
-  static const unsigned short STOP_TRACK = 0x0A0E;
+  static const unsigned short STOP_LINEAR_MOTOR = 0x0A0E;
 };
 
 #endif

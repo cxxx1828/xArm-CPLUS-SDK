@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\example\8002-impedance.cc">
+    <ClCompile Include="..\..\example\8002-admittance_control.cc">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,6 +11,9 @@
 - Protect the arm before unlocking the motor.
 
 ## Update Summary
+- > ### 1.17.0 
+  - Change some API names
+
 - > ### 1.16.0
   - Added parameter to support get raw data of the Six-axis Force Torque Sensor
   - Added an interface to control xArm Gripper G2
@@ -41,6 +44,38 @@
   - The Cartesian motion-related interface adds the motion_type parameter to determine the planning method (Enabled after firmware version 1.11.100)
 
 - > ### [More](./ReleaseNotes.md)
+
+## API Change List
+  | OLD API NAME   | NEW API NAME  |
+  | -------------- | ------------- |
+  | set_impedance  |  set_ft_sensor_admittance_parameters  |
+  | set_impedance_mbk  |  set_ft_sensor_admittance_parameters  |
+  | set_impedance_config  |  set_ft_sensor_admittance_parameters  |
+  | set_force_control_pid  |  set_ft_sensor_force_parameters  |
+  | config_force_control  |  set_ft_sensor_force_parameters  |
+  | ft_sensor_set_zero  |  set_ft_sensor_zero  |
+  | ft_sensor_iden_load  |  iden_ft_sensor_load_offset  |
+  | ft_sensor_cali_load  |  set_ft_sensor_load_offset  |
+  | ft_sensor_enable  |  set_ft_sensor_enable  |
+  | ft_sensor_app_set  |  set_ft_sensor_mode  |
+  | ft_sensor_app_get  |  get_ft_sensor_mode  |
+  | get_linear_track_registers  |  get_linear_motor_registers  |
+  | get_linear_track_pos  |  get_linear_motor_pos  |
+  | get_linear_track_status  |  get_linear_motor_status  |
+  | get_linear_track_error  |  get_linear_motor_error  |
+  | get_linear_track_is_enabled  |  get_linear_motor_is_enabled  |
+  | get_linear_track_on_zero  |  get_linear_motor_on_zero  |
+  | get_linear_track_sci  |  get_linear_motor_sci  |
+  | get_linear_track_sco  |  get_linear_motor_sco  |
+  | clean_linear_track_error  |  clean_linear_motor_error  |
+  | set_linear_track_enable  |  set_linear_motor_enable  |
+  | set_linear_track_speed  |  set_linear_motor_speed  |
+  | set_linear_track_back_origin  |  set_linear_motor_back_origin  |
+  | set_linear_track_pos  |  set_linear_motor_pos  |
+  | set_linear_track_stop  |  set_linear_motor_stop  |
+  | get_suction_cup  |  get_vacuum_gripper  |
+  | set_suction_cup  |  set_vacuum_gripper  |
+  | shutdown_system  |  system_control  |
 
 ## Doc
 - #### [API Document](doc/xarm_cplus_api.md)
@@ -261,7 +296,7 @@
 
 - ##### [8001-force_tech](example/8001-force_tech.cc)
 
-- ##### [8002-impedance](example/8002-impedance.cc)
+- ##### [8002-admittance_control](example/8002-admittance_control.cc)
 
 - ##### [8003-force_control](example/8003-force_control.cc)
 

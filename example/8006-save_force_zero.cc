@@ -31,10 +31,10 @@ int main(int argc, char **argv) {
 
   int ret;
 
-  ret = arm->ft_sensor_enable(1);
-  printf("ft_sensor_enable, ret=%d\n", ret);
-  ret = arm->ft_sensor_set_zero();
-  printf("ft_sensor_set_zero, ret=%d\n", ret);
+  ret = arm->set_ft_sensor_enable(1);
+  printf("set_ft_sensor_enable, ret=%d\n", ret);
+  ret = arm->set_ft_sensor_zero();
+  printf("set_ft_sensor_zero, ret=%d\n", ret);
   sleep_milliseconds(200);
 
   arm->save_conf();

@@ -844,7 +844,7 @@ int UxbusCmd::tgpio_addr_w16(int addr, float value, unsigned char host_id, char 
   return _recv_modbus_response(UXBUS_RG::TGPIO_W16B, ret, NULL, 0, S_TOUT_);
 }
 
-int UxbusCmd::tgpio_addr_r16(int addr, float *value, unsigned char host_id) {
+int UxbusCmd::tgpio_addr_r16(int addr, int *value, unsigned char host_id) {
   unsigned char *txdata = new unsigned char[3]();
   txdata[0] = host_id;
   bin16_to_8(addr, &txdata[1]);
@@ -855,7 +855,7 @@ int UxbusCmd::tgpio_addr_r16(int addr, float *value, unsigned char host_id) {
   if (-1 == ret) { return UXBUS_STATE::ERR_NOTTCP; }
   unsigned char *rx_data = new unsigned char[4]();
   ret = _recv_modbus_response(UXBUS_RG::TGPIO_R16B, ret, rx_data, 4, G_TOUT_);
-  *value = (float)bin8_to_32(rx_data);
+  *value = bin8_to_32(rx_data);
   delete[] rx_data;
   return ret;
 }
@@ -872,7 +872,7 @@ int UxbusCmd::tgpio_addr_w32(int addr, float value, unsigned char host_id) {
   return _recv_modbus_response(UXBUS_RG::TGPIO_W32B, ret, NULL, 0, S_TOUT_);
 }
 
-int UxbusCmd::tgpio_addr_r32(int addr, float *value, unsigned char host_id) {
+int UxbusCmd::tgpio_addr_r32(int addr, int *value, unsigned char host_id) {
   unsigned char *txdata = new unsigned char[3]();
   txdata[0] = host_id;
   bin16_to_8(addr, &txdata[1]);
@@ -883,24 +883,24 @@ int UxbusCmd::tgpio_addr_r32(int addr, float *value, unsigned char host_id) {
   if (-1 == ret) { return UXBUS_STATE::ERR_NOTTCP; }
   unsigned char *rx_data = new unsigned char[4]();
   ret = _recv_modbus_response(UXBUS_RG::TGPIO_R32B, ret, rx_data, 4, G_TOUT_);
-  *value = (float)bin8_to_32(rx_data);
+  *value = bin8_to_32(rx_data);
   delete[] rx_data;
   return ret;
 }
 
 int UxbusCmd::tgpio_get_digital(int *io0, int *io1, int *io2, int *io3, int *io4) {
-  float tmp;
+  int tmp;
   int ret = tgpio_addr_r16(SERVO3_RG::DIGITAL_IN, &tmp);
 
-  *io0 = (int)tmp & 0x0001;
-  *io1 = ((int)tmp & 0x0002) >> 1;
+  *io0 = tmp & 0x0001;
+  *io1 = (tmp & 0x0002) >> 1;
   if (io3 != NULL)
-    *io3 = ((int)tmp & 0x0004) >> 2;
+    *io3 = (tmp & 0x0004) >> 2;
   if (io4 != NULL)
-    *io4 = ((int)tmp & 0x0008) >> 3;
+    *io4 = (tmp & 0x0008) >> 3;
   if (io2 != NULL) {
     int ret2 = tgpio_addr_r16(0x0A12, &tmp);
-    *io2 = (int)tmp & 0x0001;
+    *io2 = tmp & 0x0001;
     return ret2 != 0 ? ret2 : ret;
   }
   return ret;
@@ -950,16 +950,16 @@ int UxbusCmd::tgpio_set_digital(int ionum, int value, int sync) {
 }
 
 int UxbusCmd::tgpio_get_analog1(float * value) {
-  float tmp;
+  int tmp;
   int ret = tgpio_addr_r16(SERVO3_RG::ANALOG_IO1, &tmp);
   *value = (float)(tmp * 3.3 / 4095.0);
   return ret;
 }
 
 int UxbusCmd::tgpio_get_analog2(float * value) {
-  float tmp;
+  int tmp;
   int ret = tgpio_addr_r16(SERVO3_RG::ANALOG_IO2, &tmp);
-  // printf("tmp = %f\n", tmp);
+  // printf("tmp = %d\n", tmp);
   *value = (float)(tmp * 3.3 / 4095.0);
   return ret;
 }
@@ -973,12 +973,12 @@ int UxbusCmd::set_modbus_timeout(int value, bool is_transparent_transmission) {
 }
 
 int UxbusCmd::set_modbus_baudrate(int baud) {
-  float val = 0;
+  int val = 0;
   int baud_inx = get_baud_inx(baud);
   if (baud_inx == -1) return -1;
   int ret = tgpio_addr_r16(SERVO3_RG::MODBUS_BAUDRATE & 0x0FFF, &val);
   if (ret == 0) {
-    int baud_i = (int)val;
+    int baud_i = val;
     if (baud_i != baud_inx) {
       // tgpio_addr_w16(SERVO3_RG::MODBUS_BAUDRATE, (float)baud_inx);
       tgpio_addr_w16(0x1a0b, (float)baud_inx);
@@ -1562,7 +1562,7 @@ int UxbusCmd::iden_joint_friction(unsigned char sn[14], float *rx_data)
   return _get_nfp32_with_bytes(UXBUS_RG::IDEN_FRIC, sn, 14, rx_data, 1, 500000);
 }
 
-int UxbusCmd::set_impedance(int coord, int c_axis[6], float M[6], float K[6], float B[6])
+int UxbusCmd::set_admittance(int coord, int c_axis[6], float M[6], float K[6], float B[6])
 {
   unsigned char tx_data[79] = {0};
   tx_data[0] = (unsigned char)coord;
@@ -1575,13 +1575,13 @@ int UxbusCmd::set_impedance(int coord, int c_axis[6], float M[6], float K[6], fl
   nfp32_to_hex(B, &tx_data[55], 6);
 
   std::lock_guard<std::mutex> locker(mutex_);
-  int ret = _send_modbus_request(UXBUS_RG::IMPEDANCE_CONFIG, tx_data, 79);
+  int ret = _send_modbus_request(UXBUS_RG::ADMITTANCE_CONFIG, tx_data, 79);
   if (-1 == ret) { return UXBUS_STATE::ERR_NOTTCP; }
 
-  return _recv_modbus_response(UXBUS_RG::IMPEDANCE_CONFIG, ret, NULL, 0, S_TOUT_);
+  return _recv_modbus_response(UXBUS_RG::ADMITTANCE_CONFIG, ret, NULL, 0, S_TOUT_);
 }
 
-int UxbusCmd::set_impedance_mbk(float M[6], float K[6], float B[6])
+int UxbusCmd::set_admittance_mbk(float M[6], float K[6], float B[6])
 {
   unsigned char tx_data[72] = {0};
 
@@ -1590,13 +1590,13 @@ int UxbusCmd::set_impedance_mbk(float M[6], float K[6], float B[6])
   nfp32_to_hex(B, &tx_data[48], 6);
 
   std::lock_guard<std::mutex> locker(mutex_);
-  int ret = _send_modbus_request(UXBUS_RG::IMPEDANCE_CTRL_MBK, tx_data, 72);
+  int ret = _send_modbus_request(UXBUS_RG::ADMITTANCE_CTRL_MKB, tx_data, 72);
   if (-1 == ret) { return UXBUS_STATE::ERR_NOTTCP; }
 
-  return _recv_modbus_response(UXBUS_RG::IMPEDANCE_CTRL_MBK, ret, NULL, 0, S_TOUT_);
+  return _recv_modbus_response(UXBUS_RG::ADMITTANCE_CTRL_MKB, ret, NULL, 0, S_TOUT_);
 }
 
-int UxbusCmd::set_impedance_config(int coord, int c_axis[6])
+int UxbusCmd::set_admittance_config(int coord, int c_axis[6])
 {
   unsigned char tx_data[7] = {0};
   tx_data[0] = (unsigned char)coord;
@@ -1605,10 +1605,10 @@ int UxbusCmd::set_impedance_config(int coord, int c_axis[6])
   }
 
   std::lock_guard<std::mutex> locker(mutex_);
-  int ret = _send_modbus_request(UXBUS_RG::IMPEDANCE_CTRL_CONFIG, tx_data, 7);
+  int ret = _send_modbus_request(UXBUS_RG::ADMITTANCE_CTRL_CONFIG, tx_data, 7);
   if (-1 == ret) { return UXBUS_STATE::ERR_NOTTCP; }
 
-  return _recv_modbus_response(UXBUS_RG::IMPEDANCE_CTRL_CONFIG, ret, NULL, 0, S_TOUT_);
+  return _recv_modbus_response(UXBUS_RG::ADMITTANCE_CTRL_CONFIG, ret, NULL, 0, S_TOUT_);
 }
 
 int UxbusCmd::config_force_control(int coord, int c_axis[6], float f_ref[6], float limits[6])
@@ -1658,7 +1658,7 @@ int UxbusCmd::ft_sensor_iden_load(float result[10])
 
 int UxbusCmd::ft_sensor_cali_load(float load[10])
 {
-  return _set_nfp32(UXBUS_RG::FTSENSOR_CALI_LOAD_OFFSET, load, 10);
+  return _set_nfp32(UXBUS_RG::FTSENSOR_SET_LOAD_OFFSET, load, 10);
 }
 
 int UxbusCmd::ft_sensor_enable(int on_off)
@@ -1670,12 +1670,12 @@ int UxbusCmd::ft_sensor_enable(int on_off)
 int UxbusCmd::ft_sensor_app_set(int app_code)
 {
   int txdata[1] = { app_code };
-  return _set_nu8(UXBUS_RG::FTSENSOR_SET_APP, txdata, 1);
+  return _set_nu8(UXBUS_RG::FTSENSOR_SET_MODE, txdata, 1);
 }
 
 int UxbusCmd::ft_sensor_app_get(int *app_code)
 {
-  return _get_nu8(UXBUS_RG::FTSENSOR_GET_APP, app_code, 1);
+  return _get_nu8(UXBUS_RG::FTSENSOR_GET_MODE, app_code, 1);
 }
 
 int UxbusCmd::ft_sensor_get_data(float ft_data[6], bool is_new, bool is_raw)
@@ -1686,13 +1686,13 @@ int UxbusCmd::ft_sensor_get_data(float ft_data[6], bool is_new, bool is_raw)
     return _get_nfp32(is_new ? UXBUS_RG::FTSENSOR_GET_DATA : UXBUS_RG::FTSENSOR_GET_DATA_OLD, ft_data, 6);
 }
 
-int UxbusCmd::ft_sensor_get_config(int *ft_app_status, int *ft_is_started, int *ft_type, int *ft_id, int *ft_freq, 
+int UxbusCmd::ft_sensor_get_config(int *ft_mode, int *ft_is_started, int *ft_type, int *ft_id, int *ft_freq, 
   float *ft_mass, float *ft_dir_bias, float ft_centroid[3], float ft_zero[6], int *imp_coord, int imp_c_axis[6], float M[6], float K[6], float B[6],
   int *f_coord, int f_c_axis[6], float f_ref[6], float f_limits[6], float kp[6], float ki[6], float kd[6], float xe_limit[6])
 {
   unsigned char data[280];
   int ret = _get_nu8(UXBUS_RG::FTSENSOR_GET_CONFIG, data, 280);
-  if (ft_app_status != NULL) *ft_app_status = data[0];
+  if (ft_mode != NULL) *ft_mode = data[0];
   if (ft_is_started != NULL) *ft_is_started = data[1];
   if (ft_type != NULL) *ft_type = data[2];
   if (ft_id != NULL) *ft_id = data[3];
@@ -1747,28 +1747,28 @@ int UxbusCmd::iden_tcp_load(float result[4], float estimated_mass)
   return iden_load(1, result, 4, 500000, estimated_mass);
 }
 
-int UxbusCmd::track_modbus_r16s(int addr, unsigned char *rx_data, int len, unsigned char fcode)
+int UxbusCmd::linear_motor_modbus_r16s(int addr, unsigned char *rx_data, int len, unsigned char fcode)
 {
   unsigned char *txdata = new unsigned char[6]();
-  txdata[0] = UXBUS_CONF::TRACK_ID;
+  txdata[0] = UXBUS_CONF::LINEAR_MOTOR_ID;
   txdata[1] = fcode;
   bin16_to_8(addr, &txdata[2]);
   bin16_to_8(len, &txdata[4]);
-  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::LINEAR_TRACK_HOST_ID, (float)0.001, false);
+  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID, (float)0.001, false);
   delete[] txdata;
   return ret;
 }
 
-int UxbusCmd::track_modbus_w16s(int addr, unsigned char *send_data, int len, unsigned char *rx_data)
+int UxbusCmd::linear_motor_modbus_w16s(int addr, unsigned char *send_data, int len, unsigned char *rx_data)
 {
   unsigned char *txdata = new unsigned char[7 + len * 2]();
-  txdata[0] = UXBUS_CONF::TRACK_ID;
+  txdata[0] = UXBUS_CONF::LINEAR_MOTOR_ID;
   txdata[1] = 0x10;
   bin16_to_8(addr, &txdata[2]);
   bin16_to_8(len, &txdata[4]);
   txdata[6] = len * 2;
   memcpy(&txdata[7], send_data, len * 2);
-  int ret = tgpio_set_modbus_func(txdata, len * 2 + 7, rx_data, UXBUS_CONF::LINEAR_TRACK_HOST_ID, (float)0.001, false);
+  int ret = tgpio_set_modbus_func(txdata, len * 2 + 7, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID, (float)0.001, false);
   delete[] txdata;
   return ret;
 }

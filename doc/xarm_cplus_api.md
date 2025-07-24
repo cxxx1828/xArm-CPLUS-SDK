@@ -1,4 +1,4 @@
-# xArm-C++-SDK API Documentation (V1.15.0)
+# xArm-C++-SDK API Documentation (V1.17.0)
 
 ## class __XArmAPI__
 ************************************
@@ -37,7 +37,7 @@ __XArmAPI(const std::string &robot_ip="",
 > @param init_axis: init axis variable  
 > @param debug:  reversed  
 > @param report_type: report type   
-> @param baud_checkset: auto check set the baud when use the gripper/bio/robotiq/lineartrack api or not  
+> @param baud_checkset: auto check set the baud when use the gripper/bio/robotiq/linear_motor api or not  
 
 ************************************
 
@@ -419,9 +419,10 @@ __XArmAPI(const std::string &robot_ip="",
   > Set the xArm state
   > 
   > @param state: state  
-  > &ensp;&ensp;&ensp;&ensp;0: sport state  
+  > &ensp;&ensp;&ensp;&ensp;0: motion state  
   > &ensp;&ensp;&ensp;&ensp;3: pause state  
   > &ensp;&ensp;&ensp;&ensp;4: stop state  
+  > &ensp;&ensp;&ensp;&ensp;6: deceleration stop state  
   > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
@@ -851,6 +852,17 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @param speed:  
   > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
+- __int get_gripper_status(int *status)__
+  > Get the status of the xArm Gripper
+  > Note:  
+  > &ensp;&ensp;&ensp;&ensp;only available if gripper_version >= 3.4.3
+  > 
+  > @param status: used to store the results obtained  
+  > &ensp;&ensp;&ensp;&ensp;status & 0x03 == 0: stop state  
+  > &ensp;&ensp;&ensp;&ensp;status & 0x03 == 1: move state  
+  > &ensp;&ensp;&ensp;&ensp;status & 0x03 == 2: grasp state  
+  > 
+  > @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 - __int get_gripper_err_code(int *err)__
   > Get the gripper error code
@@ -1138,11 +1150,12 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
 
 
 - __int get_vacuum_gripper(int *val)__
-  > Get vacuum gripper state, alias for `get_suction_cup`
+  > Get the state of the Vacuum Gripper
   > 
   > @param val:  
-  > &ensp;&ensp;&ensp;&ensp;0: vacuum gripper is off  
-  > &ensp;&ensp;&ensp;&ensp;1: vacuum gripper is on  
+  > &ensp;&ensp;&ensp;&ensp;-1: Vacuum gripper is off  
+  > &ensp;&ensp;&ensp;&ensp;0: Object not picked by vacuum gripper  
+  > &ensp;&ensp;&ensp;&ensp;1: Object picked by vacuum gripper  
   > @param hardware_version:  
   > &ensp;&ensp;&ensp;&ensp;1: Plug-in Connection, default  
   > &ensp;&ensp;&ensp;&ensp;2: Contact Connection  
@@ -1151,7 +1164,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
 
 
 - __int set_vacuum_gripper(bool on, bool wait=false, float timeout=3, float delay_sec=0)__
-  > Set vacuum gripper, alias for `set_suction_cup`
+  > Set the Vacuum Gripper ON/OFF
   > 
   > @param on: open vacuum gripper or not  
   > @param wait: wait or not, default is false  
@@ -1754,20 +1767,27 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;4: Robotiq-2F-85 Gripper, no additional parameters required  
   > &ensp;&ensp;&ensp;&ensp;5: Robotiq-2F-140 Gripper, no additional parameters required  
   > &ensp;&ensp;&ensp;&ensp;21: Cylinder, need additional parameters radius, height  
+  > &ensp;&ensp;&ensp;&ensp;7: Lite Gripper, no additional parameters required
+  > &ensp;&ensp;&ensp;&ensp;8: Lite Vacuum Gripper, no additional parameters required
+  > &ensp;&ensp;&ensp;&ensp;9: xArm Gripper G2, no additional parameters required
+  > &ensp;&ensp;&ensp;&ensp;10:	PGC-140-50 of the DH-ROBOTICS, no additional parameters required
+  > &ensp;&ensp;&ensp;&ensp;11: RH56DFX-2L of the INSPIRE-ROBOTS, no additional parameters required
+  > &ensp;&ensp;&ensp;&ensp;12: RH56DFX-2R of the INSPIRE-ROBOTS, no additional parameters required
+  > &ensp;&ensp;&ensp;&ensp;13: xArm Bio Gripper G2, no additional parameters required
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;arm->set_collision_tool_model(21, 2, radius, height)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param radius: the radius of cylinder, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param height: the height of cylinder, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x_offset: offset in the x direction, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y_offset: offset in the y direction, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z_offset: offset in the z direction, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param radius: the radius of cylinder, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param height: the height of cylinder, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x_offset: offset in the x direction, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y_offset: offset in the y direction, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z_offset: offset in the z direction, (unit: mm), (float)  
   > &ensp;&ensp;&ensp;&ensp;22: Cuboid, need additional parameters x, y, z  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;arm->set_collision_tool_model(22, 3, x, y, z)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x: the length of the cuboid in the x coordinate direction, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y: the length of the cuboid in the y coordinate direction, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z: the length of the cuboid in the z coordinate direction, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x_offset: offset in the x direction, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y_offset: offset in the y direction, (unit: mm)  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z_offset: offset in the z direction, (unit: mm)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x: the length of the cuboid in the x coordinate direction, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y: the length of the cuboid in the y coordinate direction, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z: the length of the cuboid in the z coordinate direction, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param x_offset: offset in the x direction, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param y_offset: offset in the y direction, (unit: mm), (float)  
+  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;@param z_offset: offset in the z direction, (unit: mm), (float)  
   > 
   > @param n: the count of the additional parameters  
   > @param ...: additional parameters  
@@ -1853,77 +1873,45 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_impedance(int imp_coord, int imp_c_axis[6], float M[6], float K[6], float B[6])__
-  > Set all parameters of impedance control through the Six-axis Force Torque Sensor.  
+- __int set_ft_sensor_admittance_parameters(int coord, int c_axis[6], float M[6], float K[6], float B[6])__
+- __int set_ft_sensor_admittance_parameters(int coord, int c_axis[6])__
+- __int set_ft_sensor_admittance_parameters(float M[6], float K[6], float B[6])__
+  > Set the parameters of admittance control through the Six-axis Force Torque Sensor.  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3   
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
   > 
-  > @param imp_coord: task frame. 0: base frame. 1: tool frame.  
-  > @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.  
-  > @param M: mass. (kg)  
-  > @param K: stiffness coefficient.  
-  > @param B: damping coefficient. invalid.  
+  > @param coord: task frame. 0: base frame. 1: tool frame.  
+  > @param c_axis: a 6d vector of 0s and 1s. 1 means that robot will be admittance in the corresponding axis of the task frame.  
+  > @param M: 6d vector, mass. (kg)  
+  > @param K: 6d vector, stiffness coefficient.  
+  > @param B: 6d vector, damping coefficient. invalid.  
   > &ensp;&ensp;&ensp;&ensp;Note: the value is set to 2*sqrt(M*K) in controller.  
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_impedance_mbk(float M[6], float K[6], float B[6])__
-  > Set mbk parameters of impedance control through the Six-axis Force Torque Sensor.  
-  > &ensp;&ensp;&ensp;&ensp;Note:  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
-  > 
-  > @param M: mass. (kg)  
-  > @param K: stiffness coefficient.  
-  > @param B: damping coefficient. invalid.  
-  > &ensp;&ensp;&ensp;&ensp;Note: the value is set to 2*sqrt(M*K) in controller.
-  > 
-  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
-
-
-- __int set_impedance_config(int imp_coord, int imp_c_axis[6])__
-  > Set impedance control parameters of impedance control through the Six-axis Force Torque Sensor.  
-  > &ensp;&ensp;&ensp;&ensp;Note:  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
-  > 
-  > @param imp_coord: task frame. 0: base frame. 1: tool frame.  
-  > @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.
-  > 
-  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
-
-
-- __int config_force_control(int f_coord, int f_c_axis[6], float f_ref[6], float f_limits[6])__
+- __int set_ft_sensor_force_parameters(int coord, int c_axis[6], float f_ref[6], float limits[6], float kp[6], float ki[6], float kd[6], float xe_limit[6])__
+- __int set_ft_sensor_force_parameters(int coord, int c_axis[6], float f_ref[6], float limits[6])__
+- __int set_ft_sensor_force_parameters(float kp[6], float ki[6], float kd[6], float xe_limit[6])__
   > Set force control parameters through the Six-axis Force Torque Sensor.  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
   > 
-  > @param f_coord: task frame. 0: base frame. 1: tool frame.  
-  > @param f_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.  
-  > @param f_ref: the forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque.  
-  > @param f_limits: for compliant axes, these values are the maximum allowed tcp speed along/about the axis.
+  > @param coord: task frame. 0: base frame. 1: tool frame.  
+  > @param c_axis: a 6d vector of 0s and 1s. 1 means that robot will be compliant in the corresponding axis of the task frame.  
+  > @param f_ref: 6d vector, the forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque.  
+  > @param limits: 6d vector, for compliant axes, these values are the maximum allowed tcp speed along/about the axis.  
+  > @param kp: 6d vector, proportional gain  
+  > @param ki: 6d vector, integral gain.  
+  > @param kd: 6d vector, differential gain.  
+  > @param xe_limit: 6d vector, for compliant axes, these values are the maximum allowed tcp speed along/about the axis. mm/s  
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_force_control_pid(float kp[6], float ki[6], float kd[6], float xe_limit[6])__
-  > Set force control pid parameters through the Six-axis Force Torque Sensor.  
-  > &ensp;&ensp;&ensp;&ensp;Note:  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
-  > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
-  > 
-  > @param kp: proportional gain  
-  > @param ki: integral gain.  
-  > @param kd: differential gain.  
-  > @param xe_limit: 6d vector. for compliant axes, these values are the maximum allowed tcp speed along/about the axis. mm/s  
-  > 
-  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
-
-
-- __int ft_sensor_set_zero(void)__
+- __int set_ft_sensor_zero(void)__
   > Set the current state to the zero point of the Six-axis Force Torque Sensor  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
@@ -1932,8 +1920,8 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int ft_sensor_iden_load(float result[10])__
-  > Identification the tcp load with the the Six-axis Force Torque Sensor  
+- __int iden_ft_sensor_load_offset(float result[10])__
+  > Identification the tcp load and offset with the the Six-axis Force Torque Sensor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.3  
   > &ensp;&ensp;&ensp;&ensp;Note: the Six-axis Force Torque Sensor is required (the third party is not currently supported)  
   > &ensp;&ensp;&ensp;&ensp;Note: tstarting from SDK v1.11.0, the centroid unit is millimeters (originally meters)  
@@ -1943,20 +1931,20 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int ft_sensor_cali_load(float load[10], bool association_setting_tcp_load = false, float m = 0.325, float x = -17, float y = 9, float z = 11.8)__
+- __int set_ft_sensor_load_offset(float load_offset[10], bool association_setting_tcp_load = false, float m = 0.270, float x = -17, float y = 9, float z = 11.8)__
   > Write the load offset parameters identified by the Six-axis Force Torque Sensor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.3  
   > &ensp;&ensp;&ensp;&ensp;Note: the Six-axis Force Torque Sensor is required (the third party is not currently supported)  
   > &ensp;&ensp;&ensp;&ensp;Note: tstarting from SDK v1.11.0, the centroid unit is millimeters (originally meters)  
   > 
-  > @param load: iden result([mass(kg)，x_centroid(mm)，y_centroid(mm)，z_centroid(mm)，Fx_offset，Fy_offset，Fz_offset，Tx_offset，Ty_offset，Tz_ffset])  
+  > @param load_offset: iden result([mass(kg)，x_centroid(mm)，y_centroid(mm)，z_centroid(mm)，Fx_offset，Fy_offset，Fz_offset，Tx_offset，Ty_offset，Tz_ffset])  
   > @param association_setting_tcp_load: whether to convert the paramster to the corresponding tcp load and set, default is false  
   > &ensp;&ensp;&ensp;&ensp;if true, the value of tcp load will be modified
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int ft_sensor_enable(int on_off)__
+- __int set_ft_sensor_enable(int on_off)__
   > Used for enabling and disabling the use of the Six-axis Force Torque Sensor measurements in the controller.  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
@@ -1967,29 +1955,29 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int ft_sensor_app_set(int app_code)__
+- __int set_ft_sensor_mode(int mode)__
   > Set robot to be controlled in force mode. (Through the Six-axis Force Torque Sensor)  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
   > 
-  > @param app_code: force mode.  
+  > @param mode: force mode.  
   > &ensp;&ensp;&ensp;&ensp;0: non-force mode  
-  > &ensp;&ensp;&ensp;&ensp;1: impendance control  
+  > &ensp;&ensp;&ensp;&ensp;1: admittance control  
   > &ensp;&ensp;&ensp;&ensp;2: force control
   >
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int ft_sensor_app_get(int *app_code)__
+- __int get_ft_sensor_mode(int *mode)__
   > Get force mode  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
   > 
-  > @param app_code: the result of force mode.  
+  > @param mode: the result of force mode.  
   > &ensp;&ensp;&ensp;&ensp;0: non-force mode  
-  > &ensp;&ensp;&ensp;&ensp;1: impendance control  
+  > &ensp;&ensp;&ensp;&ensp;1: admittance control  
   > &ensp;&ensp;&ensp;&ensp;2: force control
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
@@ -2008,15 +1996,15 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_ft_sensor_config(int *ft_app_status = NULL, int *ft_is_started = NULL, int *ft_type = NULL, int *ft_id = NULL, int *ft_freq = NULL, float *ft_mass = NULL, float *ft_dir_bias = NULL, float ft_centroid[3] = NULL, float ft_zero[6] = NULL, int *imp_coord = NULL, int imp_c_axis[6] = NULL, float M[6] = NULL, float K[6] = NULL, float B[6] = NULL, int *f_coord = NULL, int f_c_axis[6] = NULL, float f_ref[6] = NULL, float f_limits[6] = NULL, float kp[6] = NULL, float ki[6] = NULL, float kd[6] = NULL, float xe_limit[6] = NULL)__
+- __int get_ft_sensor_config(int *ft_mode = NULL, int *ft_is_started = NULL, int *ft_type = NULL, int *ft_id = NULL, int *ft_freq = NULL, float *ft_mass = NULL, float *ft_dir_bias = NULL, float ft_centroid[3] = NULL, float ft_zero[6] = NULL, int *imp_coord = NULL, int imp_c_axis[6] = NULL, float M[6] = NULL, float K[6] = NULL, float B[6] = NULL, int *f_coord = NULL, int f_c_axis[6] = NULL, float f_ref[6] = NULL, float f_limits[6] = NULL, float kp[6] = NULL, float ki[6] = NULL, float kd[6] = NULL, float xe_limit[6] = NULL)__
   > Get the config of the Six-axis Force Torque Sensor  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.3  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
   > 
-  > @param ft_app_status: force mode  
+  > @param ft_mode: force mode  
   > &ensp;&ensp;&ensp;&ensp;0: non-force mode  
-  > &ensp;&ensp;&ensp;&ensp;1: impendance control  
+  > &ensp;&ensp;&ensp;&ensp;1: admittance control  
   > &ensp;&ensp;&ensp;&ensp;2: force control  
   > @param ft_is_started: ft sensor is enable or not  
   > @param ft_type: ft sensor type  
@@ -2026,10 +2014,10 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @param ft_dir_bias:  
   > @param ft_centroid: [x_centroid，y_centroid，z_centroid]  
   > @param ft_zero: [Fx_offset，Fy_offset，Fz_offset，Tx_offset，Ty_offset，Tz_ffset]  
-  > @param imp_coord: task frame of impendance control mode.  
+  > @param imp_coord: task frame of admittance control mode.  
   > &ensp;&ensp;&ensp;&ensp;0: base frame.  
   > &ensp;&ensp;&ensp;&ensp;1: tool frame.  
-  > @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.  
+  > @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be admittance in the corresponding axis of the task frame.  
   > @param M: mass. (kg)  
   > @param K: stiffness coefficient.  
   > @param B: damping coefficient. invalid.  
@@ -2037,7 +2025,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @param f_coord: task frame of force control mode.   
   > &ensp;&ensp;&ensp;&ensp;0: base frame.  
   > &ensp;&ensp;&ensp;&ensp;1: tool frame.  
-  > @param f_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.  
+  > @param f_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be compliant in the corresponding axis of the task frame.  
   > @param f_ref:  the forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque.  
   > @param f_limits:  for compliant axes, these values are the maximum allowed tcp speed along/about the axis.  
   > @param kp: proportional gain  
@@ -2070,20 +2058,20 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_linear_track_error(int *err)__
-  > Get the error code of the linear track  
+- __int get_linear_motor_error(int *err)__
+  > Get the error code of the linear motor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
-  > @param err: the result of linear track error
+  > @param err: the result of linear motor error
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_linear_track_status(int *status)__
-  > Get the status of the linear track  
+- __int get_linear_motor_status(int *status)__
+  > Get the status of the linear motor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
-  > @param status: the result of linear track status  
+  > @param status: the result of linear motor status  
   > &ensp;&ensp;&ensp;&ensp;status & 0x00: motion finish.  
   > &ensp;&ensp;&ensp;&ensp;status & 0x01: in motion  
   > &ensp;&ensp;&ensp;&ensp;status & 0x02: has stop  
@@ -2091,64 +2079,64 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_linear_track_pos(int *pos)__
-  > Get the pos of the linear track  
+- __int get_linear_motor_pos(int *pos)__
+  > Get the pos of the linear motor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
-  > @param pos: the result of linear track position
+  > @param pos: the result of linear motor position
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_linear_track_is_enabled(int *status)__
-  > Get the linear track is enabled or not  
+- __int get_linear_motor_is_enabled(int *status)__
+  > Get the linear motor is enabled or not  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
-  > @param status: the result of linear track status  
-  > &ensp;&ensp;&ensp;&ensp;status == 0: linear track is not enabled  
-  > &ensp;&ensp;&ensp;&ensp;status == 1: linear track is enabled  
+  > @param status: the result of linear motor status  
+  > &ensp;&ensp;&ensp;&ensp;status == 0: linear motor is not enabled  
+  > &ensp;&ensp;&ensp;&ensp;status == 1: linear motor is enabled  
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_linear_track_on_zero(int *status)__
-  > Get the linear track is on zero positon or not  
+- __int get_linear_motor_on_zero(int *status)__
+  > Get the linear motor is on zero positon or not  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
-  > @param status: the result of linear track status  
-  > &ensp;&ensp;&ensp;&ensp;status == 0: linear track is not on zero  
-  > &ensp;&ensp;&ensp;&ensp;status == 1: linear track is on zero
+  > @param status: the result of linear motor status  
+  > &ensp;&ensp;&ensp;&ensp;status == 0: linear motor is not on zero  
+  > &ensp;&ensp;&ensp;&ensp;status == 1: linear motor is on zero
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_linear_track_sci(int *sci1)__
-  > Get the sci1 value of the linear track  
+- __int get_linear_motor_sci(int *sci1)__
+  > Get the sci1 value of the linear motor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
-  > @param sci1: the result of linear track sci1
+  > @param sci1: the result of linear motor sci1
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_linear_track_sco(int sco[2])__
-  > Get the sco value of the linear track  
+- __int get_linear_motor_sco(int sco[2])__
+  > Get the sco value of the linear motor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
-  > @param sco: the result of linear track sco0 and sco1
+  > @param sco: the result of linear motor sco0 and sco1
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int clean_linear_track_error(void)__
-  > Clean the linear track error  
+- __int clean_linear_motor_error(void)__
+  > Clean the linear motor error  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_linear_track_enable(bool enable)__
-  > Set the linear track enable/disable  
+- __int set_linear_motor_enable(bool enable)__
+  > Set the linear motor enable/disable  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
   > @param enable: enable or not
@@ -2156,8 +2144,8 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_linear_track_speed(int speed)__
-  > Set the speed of the linear track  
+- __int set_linear_motor_speed(int speed)__
+  > Set the speed of the linear motor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
   > @param speed: Integer between 1 and 1000mm/s.
@@ -2165,8 +2153,8 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_linear_track_back_origin(bool wait = true, bool auto_enable = true)__
-  > Set the linear track go back to the origin position  
+- __int set_linear_motor_back_origin(bool wait = true, bool auto_enable = true)__
+  > Set the linear motor go back to the origin position  
   > &ensp;&ensp;&ensp;&ensp;Note:  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 1.8.0  
   > &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;2. only useful when powering on for the first time  
@@ -2178,15 +2166,15 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_linear_track_pos(int pos, int speed = 0, bool wait = true, float timeout = 100, bool auto_enable = true)__
-  > Set the position of the linear track  
+- __int set_linear_motor_pos(int pos, int speed = 0, bool wait = true, float timeout = 100, bool auto_enable = true)__
+  > Set the position of the linear motor  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0
   > 
   > @param pos: position. Integer between 0 and 700/1000/1500.  
-  > &ensp;&ensp;&ensp;&ensp;If the SN of the linear track is start with AL1300, the position range is 0~700mm.  
-  > &ensp;&ensp;&ensp;&ensp;If the SN of the linear track is start with AL1301, the position range is 0~1000mm.  
-  > &ensp;&ensp;&ensp;&ensp;If the SN of the linear track is start with AL1302, the position range is 0~1500mm.  
-  > @param speed: auto set the speed of the linear track if the speed is changed, Integer between of 1 and 1000mm/s, default is -1(not set)  
+  > &ensp;&ensp;&ensp;&ensp;If the SN of the linear motor is start with AL1300, the position range is 0~700mm.  
+  > &ensp;&ensp;&ensp;&ensp;If the SN of the linear motor is start with AL1301, the position range is 0~1000mm.  
+  > &ensp;&ensp;&ensp;&ensp;If the SN of the linear motor is start with AL1302, the position range is 0~1500mm.  
+  > @param speed: auto set the speed of the linear motor if the speed is changed, Integer between of 1 and 1000mm/s, default is -1(not set)  
   > @param wait: wait to motion finish or not, default is true  
   > @param timeout: wait timeout, seconds, default is 100s.  
   > @param auto_enable: auto enable if not enabled, default is true  
@@ -2194,8 +2182,8 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_linear_track_stop(void)__
-  > Set the linear track to stop  
+- __int set_linear_motor_stop(void)__
+  > Set the linear motor to stop  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.8.0  
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
@@ -2203,7 +2191,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
 
 - __int set_baud_checkset_enable(bool enable)__
   > Enable auto checkset the baudrate of the end IO board or not  
-  > &ensp;&ensp;&ensp;&ensp;Note: only available in the API of gripper/bio/robotiq/linear_track.  
+  > &ensp;&ensp;&ensp;&ensp;Note: only available in the API of gripper/bio/robotiq/linear_motor.  
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
@@ -2216,7 +2204,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;1: xarm gripper  
   > &ensp;&ensp;&ensp;&ensp;2: bio gripper  
   > &ensp;&ensp;&ensp;&ensp;3: robotiq gripper  
-  > &ensp;&ensp;&ensp;&ensp;4: linear track  
+  > &ensp;&ensp;&ensp;&ensp;4: linear motor  
   > @param baud: checkset baud value, less than or equal to 0 means disable checkset  
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
@@ -2228,7 +2216,7 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;1: xarm gripper  
   > &ensp;&ensp;&ensp;&ensp;2: bio gripper  
   > &ensp;&ensp;&ensp;&ensp;3: robotiq gripper  
-  > &ensp;&ensp;&ensp;&ensp;4: linear track  
+  > &ensp;&ensp;&ensp;&ensp;4: linear motor  
   > @param baud: checkset baud value, less than or equal to 0 means disable checkset  
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
@@ -2579,6 +2567,20 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;Rz: [0.2, 50] (°)    
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
+- __int set_ft_admittance_ctrl_threshold(float thresholds[6])__
+  > Set the reaction thresholds in each direction under the admittance control mode of the Six-axis Force Torque Sensor   
+  > Note:   
+  > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.6.110     
+  >    
+  > @param thresholds: reaction thresholds, [x(N), y(N), z(N), Rx(Nm), Ry(Nm), Rz(Nm)]   
+  > &ensp;&ensp;&ensp;&ensp;x: [0.1, 50] (N)    
+  > &ensp;&ensp;&ensp;&ensp;y: [0.1, 50] (N)    
+  > &ensp;&ensp;&ensp;&ensp;z: [0.1, 50] (N)    
+  > &ensp;&ensp;&ensp;&ensp;Rx: [0.01, 2] (Nm)    
+  > &ensp;&ensp;&ensp;&ensp;Ry: [0.01, 2] (Nm)    
+  > &ensp;&ensp;&ensp;&ensp;Rz: [0.01, 2] (Nm)    
+  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
 - __int get_ft_collision_detection(int *on_off)__
   > Get the collision detection with the Six-axis Force Torque Sensor is enable or not   
   > Note:   
@@ -2609,6 +2611,14 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.6.103     
   >    
   > @param distances: collision rebound distance, [x(mm), y(mm), z(mm), Rx(° or rad), Ry(° or rad), Rz(° or rad)]     
+  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
+- __int get_ft_admittance_ctrl_threshold(float thresholds[6])__
+  > Get the reaction thresholds in each direction under the admittance control mode of the Six-axis Force Torque Sensor   
+  > Note:   
+  > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.6.110     
+  >    
+  > @param thresholds: reaction thresholds, [x(N), y(N), z(N), Rx(Nm), Ry(Nm), Rz(Nm)]    
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 - __int read_coil_bits(unsigned short addr, unsigned short quantity, unsigned char *bits)__

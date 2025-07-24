@@ -21,7 +21,7 @@ static int get_baud_inx(int baud) {
 
 int XArmAPI::get_tgpio_version(unsigned char versions[3]) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  float val1 = 0, val2 = 0, val3 = 0;
+  int val1 = 0, val2 = 0, val3 = 0;
   int code = 0;
   versions[0] = 0;
   versions[1] = 0;
@@ -141,18 +141,35 @@ int XArmAPI::get_cgpio_state(int *state_, int *digit_io, fp32 *analog, int *inpu
 }
 
 
-int XArmAPI::get_suction_cup(int *val, int hardware_version) {
+int XArmAPI::get_vacuum_gripper(int *val, int hardware_version) {
+  int tmp = 0;
+  int ret = core->tgpio_addr_r16(0x0A18, &tmp);
+
   if (hardware_version == 1) {
+    int dig1 = tmp & 0x01;
+    int dig2 = (tmp & 0x02) >> 1;
+    if (dig1 != 1 || dig2 != 0) {
+      // off
+      *val = -1;
+      return ret;
+    }
     int io1;
     return get_tgpio_digital(val, &io1);
   }
   else {
+    int dig1 = (tmp & 0x04) >> 2;
+    int dig2 = (tmp & 0x08) >> 3;
+    if (dig1 != 1 || dig2 != 0) {
+      // off
+      *val = -1;
+      return ret;
+    }
     int io0, io1;
     return get_tgpio_digital(&io0, &io1, NULL, val);
   }
 }
 
-int XArmAPI::set_suction_cup(bool on, bool wait, float timeout, float delay_sec, bool sync, int hardware_version) {
+int XArmAPI::set_vacuum_gripper(bool on, bool wait, float timeout, float delay_sec, bool sync, int hardware_version) {
   _wait_until_not_pause();
   _wait_until_cmdnum_lt_max();
   int code = _xarm_is_ready();
@@ -245,9 +262,9 @@ int XArmAPI::_check_modbus_code(int ret, unsigned char *rx_data, unsigned char h
 
 int XArmAPI::_get_modbus_baudrate(int *baud_inx, unsigned char host_id) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  float val = 0;
+  int val = 0;
   int ret = core->tgpio_addr_r16(SERVO3_RG::MODBUS_BAUDRATE & 0x0FFF, &val, host_id);
-  *baud_inx = (int)val;
+  *baud_inx = val;
   if (ret == UXBUS_STATE::ERR_CODE || ret == UXBUS_STATE::WAR_CODE) {
     if (host_id == UXBUS_CONF::TGPIO_HOST_ID) {
       if (error_code != 19 && error_code != 28) {
@@ -269,8 +286,8 @@ int XArmAPI::_get_modbus_baudrate(int *baud_inx, unsigned char host_id) {
     if (host_id == UXBUS_CONF::TGPIO_HOST_ID) {
       modbus_baud_ = BAUDRATES[*baud_inx];
     }
-    else if (host_id == UXBUS_CONF::LINEAR_TRACK_HOST_ID) {
-      linear_track_baud_ = BAUDRATES[*baud_inx];
+    else if (host_id == UXBUS_CONF::LINEAR_MOTOR_HOST_ID) {
+      linear_motor_baud_ = BAUDRATES[*baud_inx];
     }
   }
   return ret;
@@ -280,7 +297,7 @@ int XArmAPI::_checkset_modbus_baud(int baudrate, bool check, unsigned char host_
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   // skip checkset if check is true and (baud_checkset_flag_ is false or baudrate == 0)
   if (check && (!baud_checkset_flag_ || baudrate <= 0)) return 0;
-  if (check && ((host_id == UXBUS_CONF::TGPIO_HOST_ID && modbus_baud_ == baudrate) || (host_id == UXBUS_CONF::LINEAR_TRACK_HOST_ID && linear_track_baud_ == baudrate)))
+  if (check && ((host_id == UXBUS_CONF::TGPIO_HOST_ID && modbus_baud_ == baudrate) || (host_id == UXBUS_CONF::LINEAR_MOTOR_HOST_ID && linear_motor_baud_ == baudrate)))
     return 0;
   int baud_inx = get_baud_inx(baudrate);
   if (baud_inx == -1) return API_CODE::MODBUS_BAUD_NOT_SUPPORT;
@@ -326,16 +343,16 @@ int XArmAPI::_checkset_modbus_baud(int baudrate, bool check, unsigned char host_
       if (host_id == UXBUS_CONF::TGPIO_HOST_ID) {
         modbus_baud_ = BAUDRATES[cur_baud_inx];
       }
-      else if (host_id == UXBUS_CONF::LINEAR_TRACK_HOST_ID) {
-        linear_track_baud_ = BAUDRATES[cur_baud_inx];
+      else if (host_id == UXBUS_CONF::LINEAR_MOTOR_HOST_ID) {
+        linear_motor_baud_ = BAUDRATES[cur_baud_inx];
       }
     }
   }
   if (host_id == UXBUS_CONF::TGPIO_HOST_ID) {
     return modbus_baud_ == baudrate ? 0 : API_CODE::MODBUS_BAUD_NOT_CORRECT;
   }
-  else if (host_id == UXBUS_CONF::LINEAR_TRACK_HOST_ID) {
-    return linear_track_baud_ == baudrate ? 0 : API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  else if (host_id == UXBUS_CONF::LINEAR_MOTOR_HOST_ID) {
+    return linear_motor_baud_ == baudrate ? 0 : API_CODE::MODBUS_BAUD_NOT_CORRECT;
   }
   else {
     if (ret == 0 && cur_baud_inx < 13) {

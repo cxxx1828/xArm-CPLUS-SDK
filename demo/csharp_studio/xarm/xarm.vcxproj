@@ -206,7 +206,7 @@
     <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_report.cc" />
     <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_robotiq.cc" />
     <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_servo.cc" />
-    <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_track.cc" />
+    <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_linear_motor.cc" />
     <ClCompile Include="xarm_wrapper.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

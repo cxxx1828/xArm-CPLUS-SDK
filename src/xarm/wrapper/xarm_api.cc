@@ -324,19 +324,19 @@ void XArmAPI::_init(void) {
   xarm_gripper_versions_[1] = -1;
   xarm_gripper_versions_[2] = -1;
 
-  linear_track_baud_ = -1;
-  linear_track_speed_ = 0;
+  linear_motor_baud_ = -1;
+  linear_motor_speed_ = 0;
 
   bio_gripper_version_ = 0;
   bio_gripper_mode_ = -1;
 
-  memset(&linear_track_status, 0, sizeof(linear_track_status));
-  linear_track_status.sci = 1;
+  memset(&linear_motor_status, 0, sizeof(linear_motor_status));
+  linear_motor_status.sci = 1;
 
   default_bio_baud_ = 2000000;
   default_gripper_baud_ = 2000000;
   default_robotiq_baud_ = 115200;
-  default_linear_track_baud_ = 2000000;
+  default_linear_motor_baud_ = 2000000;
 
   only_check_type_ = 0;
   only_check_result = 0;
@@ -376,7 +376,7 @@ int XArmAPI::set_checkset_default_baud(int type, int baud)
       default_robotiq_baud_ = baud;
       break;
     case 4:
-      default_linear_track_baud_ = baud;
+      default_linear_motor_baud_ = baud;
       break;
     default:
       return API_CODE::API_EXCEPTION;
@@ -397,7 +397,7 @@ int XArmAPI::get_checkset_default_baud(int type, int *baud)
       *baud = default_robotiq_baud_;
       break;
     case 4:
-      *baud = default_linear_track_baud_;
+      *baud = default_linear_motor_baud_;
       break;
     default:
       return API_CODE::API_EXCEPTION;
@@ -802,10 +802,6 @@ int XArmAPI::system_control(int value) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   int ret = core->system_control(value);
   return _check_code(ret);
-}
-
-int XArmAPI::shutdown_system(int value) {
-  return system_control(value);
 }
 
 int XArmAPI::get_state(int *state_) {
@@ -1359,4 +1355,56 @@ void XArmAPI::_handle_feedback_data(void)
   delete[] feedback_datas;
 }
 
+int XArmAPI::iden_tcp_load(float result[4], float estimated_mass)
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  int protocol_identifier = core->get_protocol_identifier();
+  core->set_protocol_identifier(2);
+  keep_heart_ = false;
+  float mass = estimated_mass;
+  if (_version_is_ge(1, 9, 100) && estimated_mass <= 0) {
+    mass = 0.5;
+  }
+  int ret = core->iden_tcp_load(result, mass);
+  core->set_protocol_identifier(protocol_identifier);
+  keep_heart_ = true;
+  return _check_code(ret);
+}
 
+int XArmAPI::iden_joint_friction(int *result, unsigned char *sn)
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  
+  unsigned char r_sn[14];
+  if (sn == NULL) {
+    unsigned char tmp_sn[40] = {0};
+    int code = get_robot_sn(tmp_sn);
+    if (code != 0) {
+      fprintf(stderr, "iden_joint_friction -> get_robot_sn failed, code=%d\n", code);
+      return API_CODE::API_EXCEPTION;
+    }
+    memcpy(r_sn, tmp_sn, 14);
+  }
+  else {
+    memcpy(r_sn, sn, 14);
+  }
+
+  bool valid_850 = is_850() && r_sn[0] == 'F' && r_sn[1] == 'X';
+  bool valid_lite = is_lite6() && r_sn[0] == 'L' && r_sn[1] == 'I';
+  bool valid_xarm = !is_850() && !is_lite6() && r_sn[0] == 'X' && r_sn[1] == (axis == 5 ? 'F' : axis == 6 ? 'I' : axis == 7 ? 'S' : ' ') ;
+
+  if (!(valid_850 || valid_lite || valid_xarm)) {
+    fprintf(stderr, "iden_joint_friction -> get_robot_sn failed, sn=%s\n", r_sn);
+    return API_CODE::API_EXCEPTION;
+  }
+  
+  int protocol_identifier = core->get_protocol_identifier();
+  core->set_protocol_identifier(2);
+  keep_heart_ = false;
+  float tmp = 0;
+  int ret = core->iden_joint_friction(r_sn, &tmp);
+  *result = ((int)tmp) == 0 ? 0 : -1;
+  core->set_protocol_identifier(protocol_identifier);
+  keep_heart_ = true;
+  return _check_code(ret);
+}

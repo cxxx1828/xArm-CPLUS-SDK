@@ -41,7 +41,7 @@
 #define RAD_DEGREE 57.295779513082320876798154814105
 #define TIMEOUT_10 10
 #define NO_TIMEOUT -1
-#define SDK_VERSION "1.16.0"
+#define SDK_VERSION "1.17.0"
 
 typedef unsigned int u32;
 typedef float fp32;
@@ -67,6 +67,7 @@ struct LinearTrackStatus {
   unsigned char sci;
   unsigned char sco[2];
 };
+typedef LinearTrackStatus LinearMotorStatus;
 
 fp32 to_radian(fp32 val);
 fp32 to_degree(fp32 val);
@@ -174,7 +175,7 @@ public:
   UxbusCmd *core;
 
   struct RobotIqStatus robotiq_status;
-  struct LinearTrackStatus linear_track_status;
+  LinearMotorStatus linear_motor_status;
 
   fp32 *voltages; // fp32[7]{servo-1, ..., servo-7}
   fp32 *currents; // fp32[7]{servo-1, ..., servo-7}
@@ -290,7 +291,8 @@ public:
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
   int system_control(int value = 1);
-  int shutdown_system(int value = 1);
+  // Old API name, only for compatibility with old code, please use `system_control` instead
+  int shutdown_system(int value = 1) { return system_control(value); }
 
   /**
    * @brief Get the cmd count in cache
@@ -354,9 +356,10 @@ public:
    * @brief Set the xArm state
    * 
    * @param state: state
-   *  0: sport state
+   *  0: motion state
    *  3: pause state
    *  4: stop state
+   *  6: deceleration stop state
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
   int set_state(int state);
@@ -816,6 +819,19 @@ public:
   int set_gripper_speed(fp32 speed) { return set_gripper_speed((int)speed); }
 
   /**
+   * @brief Get the status of the xArm Gripper
+   * Note:
+   *    1. only available if gripper_version >= 3.4.3
+   * 
+   * @param status: used to store the results obtained
+   *    status & 0x03 == 0: stop state
+   *    status & 0x03 == 1: move state 
+   *    status & 0x03 == 2: grasp state
+   * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+   */
+  int get_gripper_status(int *status);
+
+  /**
    * @brief Get the gripper error code
    * 
    * @param err: used to store the results obtained
@@ -1157,23 +1173,25 @@ public:
   int release_feedback_callback(bool clear_all);
 
   /**
-   * @brief Get suction cup state
+   * @brief Get the state of the Vacuum Gripper
    * 
    * @param val:
-   *  0: suction cup is off
-   *  1: suction cup is on
+   *  -1: Vacuum Gripper is off
+   *  0: Object not picked by vacuum gripper
+   *  1: Object picked by vacuum gripper
    * @param hardware_version:
    *  1: Plug-in Connection, default
    *  2: Contact Connection
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
-  int get_suction_cup(int *val, int hardware_version = 1);
-  int get_vacuum_gripper(int *val, int hardware_version = 1) { return get_suction_cup(val, hardware_version); }
+  int get_vacuum_gripper(int *val, int hardware_version = 1);
+  // Old API name, only for compatibility with old code, please use `get_vacuum_gripper` instead
+  int get_suction_cup(int *val, int hardware_version = 1) { return get_vacuum_gripper(val, hardware_version); }
 
   /**
-   * @brief Set suction cup
+   * @brief Set the Vacuum Gripper ON/OFF
    * 
-   * @param on: open suction cup or not
+   * @param on: open vacuum gripper or not
    * @param wait: wait or not, default is false
    * @param timeout: maximum waiting time(unit: second), default is 10s, only valid if wait is true
    * @param delay_sec: delay effective time from the current start, in seconds, default is 0(effective immediately)
@@ -1185,8 +1203,9 @@ public:
    *  2: Contact Connection
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
-  int set_suction_cup(bool on, bool wait = false, float timeout = 3, float delay_sec = 0, bool sync = true, int hardware_version = 1);
-  int set_vacuum_gripper(bool on, bool wait = false, float timeout = 3, float delay_sec = 0, bool sync = true, int hardware_version = 1) { return set_suction_cup(on, wait, timeout, delay_sec, sync, hardware_version); }
+  int set_vacuum_gripper(bool on, bool wait = false, float timeout = 3, float delay_sec = 0, bool sync = true, int hardware_version = 1);
+  // Old API name, only for compatibility with old code, please use `set_vacuum_gripper` instead
+  int set_suction_cup(bool on, bool wait = false, float timeout = 3, float delay_sec = 0, bool sync = true, int hardware_version = 1) { return set_vacuum_gripper(on, wait, timeout, delay_sec, sync, hardware_version); }
 
   /**
    * @brief Get gripper version, only for debug
@@ -1300,8 +1319,9 @@ public:
    * @param on: on/off
    * @return: see the [API Code Documentation](./xarm_api_code.md#api-code) for details.
    */
-  int set_fense_mode(bool on);
-  int set_fence_mode(bool on) { return set_fense_mode(on); };
+  int set_fence_mode(bool on);
+  // Old API name, only for compatibility with old code, please use `set_fence_mode` instead
+  int set_fense_mode(bool on) { return set_fence_mode(on); };
 
   /**
    * @brief Turn on/off collision rebound
@@ -1806,21 +1826,28 @@ public:
    *  3: xArm Bio Gripper, no additional parameters required
    *  4: Robotiq-2F-85 Gripper, no additional parameters required
    *  5: Robotiq-2F-140 Gripper, no additional parameters required
+   *  7: Lite Gripper, no additional parameters required
+   *  8: Lite Vacuum Gripper, no additional parameters required
+   *  9: xArm Gripper G2, no additional parameters required
+   *  10:	PGC-140-50 of the DH-ROBOTICS, no additional parameters required
+   *  11: RH56DFX-2L of the INSPIRE-ROBOTS, no additional parameters required
+   *  12: RH56DFX-2R of the INSPIRE-ROBOTS, no additional parameters required
+   *  13: xArm Bio Gripper G2, no additional parameters required
    *  21: Cylinder, need additional parameters radius, height
    *    arm->set_collision_tool_model(21, 2, radius, height)
-   *    @param radius: the radius of cylinder, (unit: mm)
-   *    @param height: the height of cylinder, (unit: mm)
-   *    @param x_offset: offset in the x direction, (unit: mm)
-   *    @param y_offset: offset in the y direction, (unit: mm)
-   *    @param z_offset: offset in the z direction, (unit: mm)
+   *    @param radius: the radius of cylinder, (unit: mm), (float)
+   *    @param height: the height of cylinder, (unit: mm), (float)
+   *    @param x_offset: offset in the x direction, (unit: mm), (float)
+   *    @param y_offset: offset in the y direction, (unit: mm), (float)
+   *    @param z_offset: offset in the z direction, (unit: mm), (float)
    *  22: Cuboid, need additional parameters x, y, z
    *    arm->set_collision_tool_model(22, 3, x, y, z)
-   *    @param x: the length of the cuboid in the x coordinate direction, (unit: mm)
+   *    @param x: the length of the cuboid in the x coordinate direction, (unit: mm), (float)
    *    @param y: the length of the cuboid in the y coordinate direction, (unit: mm)
    *    @param z: the length of the cuboid in the z coordinate direction, (unit: mm)
-   *    @param x_offset: offset in the x direction, (unit: mm)
-   *    @param y_offset: offset in the y direction, (unit: mm)
-   *    @param z_offset: offset in the z direction, (unit: mm)
+   *    @param x_offset: offset in the x direction, (unit: mm), (float)
+   *    @param y_offset: offset in the y direction, (unit: mm), (float)
+   *    @param z_offset: offset in the z direction, (unit: mm), (float)
    * @param n: the count of the additional parameters
    * @param ...: additional parameters
    * @return: See the code documentation for details.
@@ -1916,74 +1943,119 @@ public:
   int calibrate_user_coordinate_offset(float rpy_ub[3], float pos_b_uorg[3], float ret_xyz[3]);
 
   /**
-   * @brief Set all parameters of impedance control through the Six-axis Force Torque Sensor.
+   * @brief Set the parameters of admittance control through the Six-axis Force Torque Sensor.
    *  Note: 
    *    1. only available if firmware_version >= 1.8.3
    *  	2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
    * 
-   * @param imp_coord: task frame. 0: base frame. 1: tool frame.
-   * @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.
-   * @param M: mass. (kg)
-   * @param K: stiffness coefficient.
-   * @param B: damping coefficient. invalid.
+   * @param coord: task frame. 0: base frame. 1: tool frame.
+   * @param c_axis: a 6d vector of 0s and 1s. 1 means that robot will be admittance in the corresponding axis of the task frame.
+   * @param M: 6d vector, mass. (kg)
+   * @param K: 6d vector, stiffness coefficient.
+   * @param B: 6d vector, damping coefficient. invalid.
    *  Note: the value is set to 2*sqrt(M*K) in controller.
    * @return: See the code documentation for details.
    */
-  int set_impedance(int imp_coord, int imp_c_axis[6], float M[6], float K[6], float B[6]);
+  int set_ft_sensor_admittance_parameters(int coord, int c_axis[6], float M[6], float K[6], float B[6]);
+  int set_ft_sensor_admittance_parameters(int coord, int c_axis[6]);
+  int set_ft_sensor_admittance_parameters(float M[6], float K[6], float B[6]);
+  // Old API name, only for compatibility with old code, please use `set_ft_sensor_admittance_parameters` instead
+  int set_impedance(int coord, int c_axis[6], float M[6], float K[6], float B[6]) { return set_ft_sensor_admittance_parameters(coord, c_axis, M, K, B); }
+  int set_impedance_mbk(float M[6], float K[6], float B[6]) { return set_ft_sensor_admittance_parameters(M, K, B); }
+  int set_impedance_config(int coord, int c_axis[6]) { return set_ft_sensor_admittance_parameters(coord, c_axis); }
 
   /**
-   * @brief Set mbk parameters of impedance control through the Six-axis Force Torque Sensor.
+   * @brief Set the parameters of force control through the Six-axis Force Torque Sensor.
    *  Note: 
    *    1. only available if firmware_version >= 1.8.3
    *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
    * 
-   * @param M: mass. (kg)
-   * @param K: stiffness coefficient.
-   * @param B: damping coefficient. invalid.
-   *  Note: the value is set to 2*sqrt(M*K) in controller.
+   * @param coord: task frame. 0: base frame. 1: tool frame.
+   * @param c_axis: a 6d vector of 0s and 1s. 1 means that robot will be compliant in the corresponding axis of the task frame.
+   * @param f_ref: 6d vector, the forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque.
+   * @param limits: 6d vector, for compliant axes, these values are the maximum allowed tcp speed along/about the axis.
+   * @param kp: 6d vector, proportional gain
+   * @param ki: 6d vector, integral gain.
+   * @param kd: 6d vector, differential gain.
+   * @param xe_limit: 6d vector, for compliant axes, these values are the maximum allowed tcp speed along/about the axis. mm/s
    * @return: See the code documentation for details.
    */
-  int set_impedance_mbk(float M[6], float K[6], float B[6]);
+  int set_ft_sensor_force_parameters(int coord, int c_axis[6], float f_ref[6], float limits[6], float kp[6], float ki[6], float kd[6], float xe_limit[6]);
+  int set_ft_sensor_force_parameters(int coord, int c_axis[6], float f_ref[6], float limits[6]);
+  int set_ft_sensor_force_parameters(float kp[6], float ki[6], float kd[6], float xe_limit[6]);
+  // Old API name, only for compatibility with old code, please use `set_ft_sensor_force_parameters` instead
+  int config_force_control(int coord, int c_axis[6], float f_ref[6], float limits[6]) { return set_ft_sensor_force_parameters(coord, c_axis, f_ref, limits); }
+  int set_force_control_pid(float kp[6], float ki[6], float kd[6], float xe_limit[6]) { return set_ft_sensor_force_parameters(kp, ki, kd, xe_limit); }
 
-  /**
-   * @brief Set impedance control parameters of impedance control through the Six-axis Force Torque Sensor.
-   *  Note: 
-   *    1. only available if firmware_version >= 1.8.3
-   *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
-   * 
-   * @param imp_coord: task frame. 0: base frame. 1: tool frame.
-   * @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.
-   * @return: See the code documentation for details.
-   */
-  int set_impedance_config(int imp_coord, int imp_c_axis[6]);
+  // /**
+  //  * @brief Set all parameters of admittance control through the Six-axis Force Torque Sensor.
+  //  *  Note: 
+  //  *    1. only available if firmware_version >= 1.8.3
+  //  *  	2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
+  //  * 
+  //  * @param imp_coord: task frame. 0: base frame. 1: tool frame.
+  //  * @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be admittance in the corresponding axis of the task frame.
+  //  * @param M: mass. (kg)
+  //  * @param K: stiffness coefficient.
+  //  * @param B: damping coefficient. invalid.
+  //  *  Note: the value is set to 2*sqrt(M*K) in controller.
+  //  * @return: See the code documentation for details.
+  //  */
+  // int set_impedance(int imp_coord, int imp_c_axis[6], float M[6], float K[6], float B[6]);
 
-  /**
-   * @brief Set force control parameters through the Six-axis Force Torque Sensor.
-   *  Note: 
-   *    1. only available if firmware_version >= 1.8.3
-   *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
-   * 
-   * @param f_coord: task frame. 0: base frame. 1: tool frame.
-   * @param f_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.
-   * @param f_ref: the forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque.
-   * @param f_limits: for compliant axes, these values are the maximum allowed tcp speed along/about the axis.
-   * @return: See the code documentation for details.
-   */
-  int config_force_control(int f_coord, int f_c_axis[6], float f_ref[6], float f_limits[6]);
+  // /**
+  //  * @brief Set mbk parameters of admittance control through the Six-axis Force Torque Sensor.
+  //  *  Note: 
+  //  *    1. only available if firmware_version >= 1.8.3
+  //  *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
+  //  * 
+  //  * @param M: mass. (kg)
+  //  * @param K: stiffness coefficient.
+  //  * @param B: damping coefficient. invalid.
+  //  *  Note: the value is set to 2*sqrt(M*K) in controller.
+  //  * @return: See the code documentation for details.
+  //  */
+  // int set_impedance_mbk(float M[6], float K[6], float B[6]);
 
-  /**
-   * @brief Set force control pid parameters through the Six-axis Force Torque Sensor.
-   *  Note: 
-   *    1. only available if firmware_version >= 1.8.3
-   *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
-   * 
-   * @param kp: proportional gain
-   * @param ki: integral gain.
-   * @param kd: differential gain.
-   * @param xe_limit: 6d vector. for compliant axes, these values are the maximum allowed tcp speed along/about the axis. mm/s
-   * @return: See the code documentation for details.
-   */
-  int set_force_control_pid(float kp[6], float ki[6], float kd[6], float xe_limit[6]);
+  // /**
+  //  * @brief Set admittance control parameters of admittance control through the Six-axis Force Torque Sensor.
+  //  *  Note: 
+  //  *    1. only available if firmware_version >= 1.8.3
+  //  *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
+  //  * 
+  //  * @param imp_coord: task frame. 0: base frame. 1: tool frame.
+  //  * @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be admittance in the corresponding axis of the task frame.
+  //  * @return: See the code documentation for details.
+  //  */
+  // int set_impedance_config(int imp_coord, int imp_c_axis[6]);
+
+  // /**
+  //  * @brief Set force control parameters through the Six-axis Force Torque Sensor.
+  //  *  Note: 
+  //  *    1. only available if firmware_version >= 1.8.3
+  //  *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
+  //  * 
+  //  * @param f_coord: task frame. 0: base frame. 1: tool frame.
+  //  * @param f_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be compliant in the corresponding axis of the task frame.
+  //  * @param f_ref: the forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque.
+  //  * @param f_limits: for compliant axes, these values are the maximum allowed tcp speed along/about the axis.
+  //  * @return: See the code documentation for details.
+  //  */
+  // int config_force_control(int f_coord, int f_c_axis[6], float f_ref[6], float f_limits[6]);
+
+  // /**
+  //  * @brief Set force control pid parameters through the Six-axis Force Torque Sensor.
+  //  *  Note: 
+  //  *    1. only available if firmware_version >= 1.8.3
+  //  *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
+  //  * 
+  //  * @param kp: proportional gain
+  //  * @param ki: integral gain.
+  //  * @param kd: differential gain.
+  //  * @param xe_limit: 6d vector. for compliant axes, these values are the maximum allowed tcp speed along/about the axis. mm/s
+  //  * @return: See the code documentation for details.
+  //  */
+  // int set_force_control_pid(float kp[6], float ki[6], float kd[6], float xe_limit[6]);
 
   /**
    * @brief Set the current state to the zero point of the Six-axis Force Torque Sensor
@@ -1993,17 +2065,21 @@ public:
    * 
    * @return: See the code documentation for details.
    */
-  int ft_sensor_set_zero(void);
+  int set_ft_sensor_zero(void);
+  // Old API name, only for compatibility with old code, please use `set_ft_sensor_zero` instead
+  int ft_sensor_set_zero(void) { return set_ft_sensor_zero(); }
 
   /**
-   * @brief Identification the tcp load with the the Six-axis Force Torque Sensor
+   * @brief Identification the tcp load and offset with the the Six-axis Force Torque Sensor
    *  Note: only available if firmware_version >= 1.8.3
    *  Note: starting from SDK v1.11.0, the centroid unit is millimeters (originally meters)
    * 
    * @param result: the result of identification, [mass(kg)，x_centroid(mm)，y_centroid(mm)，z_centroid(mm)，Fx_offset，Fy_offset，Fz_offset，Tx_offset，Ty_offset，Tz_ffset]
    * @return: See the code documentation for details.
    */
-  int ft_sensor_iden_load(float result[10]);
+  int iden_ft_sensor_load_offset(float result[10]);
+  // Old API name, only for compatibility with old code, please use `iden_ft_sensor_load_offset` instead
+  int ft_sensor_iden_load(float result[10]) { return iden_ft_sensor_load_offset(result); }
 
   /**
    * @brief Write the load offset parameters identified by the Six-axis Force Torque Sensor
@@ -2011,12 +2087,14 @@ public:
    *  Note: the Six-axis Force Torque Sensor is required (the third party is not currently supported)
    *  Note: starting from SDK v1.11.0, the centroid unit is millimeters (originally meters)
    * 
-   * @param load: iden result([mass(kg)，x_centroid(mm)，y_centroid(mm)，z_centroid(mm)，Fx_offset，Fy_offset，Fz_offset，Tx_offset，Ty_offset，Tz_ffset])
+   * @param load_offset: iden result([mass(kg)，x_centroid(mm)，y_centroid(mm)，z_centroid(mm)，Fx_offset，Fy_offset，Fz_offset，Tx_offset，Ty_offset，Tz_ffset])
    * @param association_setting_tcp_load: whether to convert the paramster to the corresponding tcp load and set, default is false
    *  if true, the value of tcp load will be modified
    * @return: See the code documentation for details.
    */
-  int ft_sensor_cali_load(float load[10], bool association_setting_tcp_load = false, float m = 0.270, float x = -17, float y = 9, float z = 11.8);
+  int set_ft_sensor_load_offset(float load_offset[10], bool association_setting_tcp_load = false, float m = 0.270, float x = -17, float y = 9, float z = 11.8);
+  // Old API name, only for compatibility with old code, please use `set_ft_sensor_load_offset` instead
+  int ft_sensor_cali_load(float load_offset[10], bool association_setting_tcp_load = false, float m = 0.270, float x = -17, float y = 9, float z = 11.8) { return set_ft_sensor_load_offset(load_offset, association_setting_tcp_load, m, x, y, z); }
 
   /**
    * @brief Used for enabling and disabling the use of the Six-axis Force Torque Sensor measurements in the controller.
@@ -2027,7 +2105,9 @@ public:
    * @param on_off: enable or disable F/T data sampling.
    * return: See the code documentation for details.
    */
-  int ft_sensor_enable(int on_off);
+  int set_ft_sensor_enable(int on_off);
+  // Old API name, only for compatibility with old code, please use `set_ft_sensor_enable` instead
+  int ft_sensor_enable(int on_off) { return set_ft_sensor_enable(on_off); }
 
   /**
    * @brief Set robot to be controlled in force mode. (Through the Six-axis Force Torque Sensor)
@@ -2035,13 +2115,15 @@ public:
    *    1. only available if firmware_version >= 1.8.3
    *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
    * 
-   * @param app_code: force mode. 
+   * @param mode: force mode. 
    *  0: non-force mode
-   *  1: impendance control
+   *  1: admittance control
    *  2: force control
    * @return: See the code documentation for details.
    */
-  int ft_sensor_app_set(int app_code);
+  int set_ft_sensor_mode(int mode);
+  // Old API name, only for compatibility with old code, please use `set_ft_sensor_mode` instead
+  int ft_sensor_app_set(int mode) { return set_ft_sensor_mode(mode); }
 
   /**
    * @brief Get force mode
@@ -2049,13 +2131,15 @@ public:
    *    1. only available if firmware_version >= 1.8.3
    *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
    * 
-   * @param app_code: the result of force mode.
+   * @param mode: the result of force mode.
    *  0: non-force mode
-   *  1: impendance control
+   *  1: admittance control
    *  2: force control
    * @return: See the code documentation for details.
    */
-  int ft_sensor_app_get(int *app_code);
+  int get_ft_sensor_mode(int *mode);
+  // Old API name, only for compatibility with old code, please use `get_ft_sensor_mode` instead
+  int ft_sensor_app_get(int *mode) { return get_ft_sensor_mode(mode); }
 
   /**
    * @brief Get the data of the Six-axis Force Torque Sensor
@@ -2074,9 +2158,9 @@ public:
    *    1. only available if firmware_version >= 1.8.3
    *    2. the Six-axis Force Torque Sensor is required (the third party is not currently supported)
    * 
-   * @param ft_app_status: force mode
+   * @param ft_mode: force mode
    *  0: non-force mode
-   *  1: impendance control
+   *  1: admittance control
    *  2: force control
    * @param ft_is_started: ft sensor is enable or not
    * @param ft_type: ft sensor type
@@ -2086,17 +2170,17 @@ public:
    * @param ft_dir_bias:
    * @param ft_centroid: [x_centroid，y_centroid，z_centroid]
    * @param ft_zero: [Fx_offset，Fy_offset，Fz_offset，Tx_offset，Ty_offset，Tz_ffset]
-   * @param imp_coord: task frame of impendance control mode.
+   * @param imp_coord: task frame of admittance control mode.
    *  0: base frame.
    *  1: tool frame.
-   * @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.
+   * @param imp_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be admittance in the corresponding axis of the task frame.
    * @param M: mass. (kg)
    * @param K: stiffness coefficient.
    * @param B: damping coefficient. invalid.   Note: the value is set to 2*sqrt(M*K) in controller.
    * @param f_coord: task frame of force control mode. 
    *  0: base frame.
    *  1: tool frame.
-   * @param f_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be impedance in the corresponding axis of the task frame.
+   * @param f_c_axis: a 6d vector of 0s and 1s. 1 means that robot will be compliant in the corresponding axis of the task frame.
    * @param f_ref:  the forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque.
    * @param f_limits:  for compliant axes, these values are the maximum allowed tcp speed along/about the axis.
    * @param kp: proportional gain
@@ -2105,7 +2189,7 @@ public:
    * @param xe_limit: 6d vector. for compliant axes, these values are the maximum allowed tcp speed along/about the axis. mm/s
    * @return: See the code documentation for details.
    */
-  int get_ft_sensor_config(int *ft_app_status = NULL, int *ft_is_started = NULL, int *ft_type = NULL, int *ft_id = NULL, int *ft_freq = NULL, 
+  int get_ft_sensor_config(int *ft_mode = NULL, int *ft_is_started = NULL, int *ft_type = NULL, int *ft_id = NULL, int *ft_freq = NULL, 
     float *ft_mass = NULL, float *ft_dir_bias = NULL, float ft_centroid[3] = NULL, float ft_zero[6] = NULL, int *imp_coord = NULL, int imp_c_axis[6] = NULL, float M[6] = NULL, float K[6] = NULL, float B[6] = NULL,
     int *f_coord = NULL, int f_c_axis[6] = NULL, float f_ref[6] = NULL, float f_limits[6] = NULL, float kp[6] = NULL, float ki[6] = NULL, float kd[6] = NULL, float xe_limit[6] = NULL);
 
@@ -2130,112 +2214,134 @@ public:
   int iden_tcp_load(float result[4], float estimated_mass = 0.0);
 
   /**
-   * @brief Get all status of the linear track
+   * @brief Get all status of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param status: the result of linear track status
+   * @param status: the result of linear motor status
    * @return: See the code documentation for details.
    */
-  int get_linear_track_registers(LinearTrackStatus *status = NULL, int addr = 0x0A20, int number_of_registers = 8);
+  int get_linear_motor_registers(LinearMotorStatus *status = NULL, int addr = 0x0A20, int number_of_registers = 8);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_registers` instead
+  int get_linear_track_registers(LinearMotorStatus *status = NULL, int addr = 0x0A20, int number_of_registers = 8) { return get_linear_motor_registers(status, addr, number_of_registers); }
 
   /**
-   * @brief Get the pos of the linear track
+   * @brief Get the pos of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param pos: the result of linear track position
+   * @param pos: the result of linear motor position
    * return: See the code documentation for details.
    */
-  int get_linear_track_pos(int *pos);
+  int get_linear_motor_pos(int *pos);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_pos` instead
+  int get_linear_track_pos(int *pos) { return get_linear_motor_pos(pos); }
 
   /**
-   * @brief Get the motion status of the linear track
+   * @brief Get the motion status of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param status: the result of linear track status
+   * @param status: the result of linear motor status
    *  status & 0x00: motion finish.
    *  status & 0x01: in motion
    *  status & 0x02: has stop
    * @return: See the code documentation for details.
    */
-  int get_linear_track_status(int *status);
+  int get_linear_motor_status(int *status);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_status` instead
+  int get_linear_track_status(int *status) { return get_linear_motor_status(status); }
 
   /**
-   * @brief Get the error code of the linear track
+   * @brief Get the error code of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param err: the result of linear track error
+   * @param err: the result of linear motor error
    * @return: See the code documentation for details.
    */
-  int get_linear_track_error(int *err);
+  int get_linear_motor_error(int *err);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_error` instead
+  int get_linear_track_error(int *err) { return get_linear_motor_error(err); }
 
   /**
-   * @brief Get the linear track is enabled or not
+   * @brief Get the linear motor is enabled or not
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param status: the result of linear track status
-   *  status == 0: linear track is not enabled
-   *  status == 1: linear track is enabled
+   * @param status: the result of linear motor status
+   *  status == 0: linear motor is not enabled
+   *  status == 1: linear motor is enabled
    * @return: See the code documentation for details.
    */
-  int get_linear_track_is_enabled(int *status);
+  int get_linear_motor_is_enabled(int *status);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_is_enabled` instead
+  int get_linear_track_is_enabled(int *status) { return get_linear_motor_is_enabled(status); }
 
   /**
-   * @brief Get the linear track is on zero positon or not
+   * @brief Get the linear motor is on zero positon or not
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param status: the result of linear track status
-   *  status == 0: linear track is not on zero
-   *  status == 1: linear track is on zero
+   * @param status: the result of linear motor status
+   *  status == 0: linear motor is not on zero
+   *  status == 1: linear motor is on zero
    * @return: See the code documentation for details.
    */
-  int get_linear_track_on_zero(int *status);
+  int get_linear_motor_on_zero(int *status);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_on_zero` instead
+  int get_linear_track_on_zero(int *status) { return get_linear_motor_on_zero(status); }
 
   /**
-   * @brief Get the sci1 value of the linear track
+   * @brief Get the sci1 value of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param sci1: the result of linear track sci1
+   * @param sci1: the result of linear motor sci1
    * @return: See the code documentation for details.
    */
-  int get_linear_track_sci(int *sci1);
+  int get_linear_motor_sci(int *sci1);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_sci` instead
+  int get_linear_track_sci(int *sci1) { return get_linear_motor_sci(sci1); }
 
   /**
-   * @brief Get the sco value of the linear track
+   * @brief Get the sco value of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
-   * @param sco: the result of linear track sco0 and sco1
+   * @param sco: the result of linear motor sco0 and sco1
    * @return: See the code documentation for details.
    */
-  int get_linear_track_sco(int sco[2]);
+  int get_linear_motor_sco(int sco[2]);
+  // Old API name, only for compatibility with old code, please use `get_linear_motor_sco` instead
+  int get_linear_track_sco(int sco[2]) { return get_linear_motor_sco(sco); }
 
   /**
-   * @brief Clean the linear track error
+   * @brief Clean the linear motor error
    *  Note: only available if firmware_version >= 1.8.0
    * 
    * @return: See the code documentation for details.
    */
-  int clean_linear_track_error(void);
+  int clean_linear_motor_error(void);
+  // Old API name, only for compatibility with old code, please use `clean_linear_motor_error` instead
+  int clean_linear_track_error(void) { return clean_linear_motor_error(); }
 
   /**
-   * @brief Set the linear track enable/disable
+   * @brief Set the linear motor enable/disable
    *  Note: only available if firmware_version >= 1.8.0
    * 
    * @param enable: enable or not
    * @return: See the code documentation for details.
    */
-  int set_linear_track_enable(bool enable);
+  int set_linear_motor_enable(bool enable);
+  // Old API name, only for compatibility with old code, please use `set_linear_motor_enable` instead
+  int set_linear_track_enable(bool enable) { return set_linear_motor_enable(enable); }
 
   /**
-   * @brief Set the speed of the linear track
+   * @brief Set the speed of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
    * @param speed: Integer between 1 and 1000mm/s.
    * @return: See the code documentation for details.
    */
-  int set_linear_track_speed(int speed);
+  int set_linear_motor_speed(int speed);
+  // Old API name, only for compatibility with old code, please use `set_linear_motor_speed` instead
+  int set_linear_track_speed(int speed) { return set_linear_motor_speed(speed); }
 
   /**
-   * @brief Set the linear track go back to the origin position
+   * @brief Set the linear motor go back to the origin position
    *  Note:
    *    1. only available if firmware_version >= 1.8.0
    *    2. only useful when powering on for the first time
@@ -2244,37 +2350,43 @@ public:
    * @param auto_enable: enable after back to origin or not, default is true
    * @return: See the code documentation for details.
    */
-  int set_linear_track_back_origin(bool wait = true, bool auto_enable = true);
+  int set_linear_motor_back_origin(bool wait = true, bool auto_enable = true);
+  // Old API name, only for compatibility with old code, please use `set_linear_motor_back_origin` instead
+  int set_linear_track_back_origin(bool wait = true, bool auto_enable = true) { return set_linear_motor_back_origin(wait, auto_enable); }
 
   /**
-   * @brief Set the position of the linear track
+   * @brief Set the position of the linear motor
    *  Note: only available if firmware_version >= 1.8.0
    * 
    * @param pos: position. Integer between 0 and 700/1000/1500.
-   *  If the SN of the linear track is start with AL1300, the position range is 0~700mm.
-   *  If the SN of the linear track is start with AL1301, the position range is 0~1000mm.
-   *  If the SN of the linear track is start with AL1302, the position range is 0~1500mm.
-   * @param speed: auto set the speed of the linear track if the speed is changed, Integer between of 1 and 1000mm/s, default is -1(not set)
+   *  If the SN of the linear motor is start with AL1300, the position range is 0~700mm.
+   *  If the SN of the linear motor is start with AL1301, the position range is 0~1000mm.
+   *  If the SN of the linear motor is start with AL1302, the position range is 0~1500mm.
+   * @param speed: auto set the speed of the linear motor if the speed is changed, Integer between of 1 and 1000mm/s, default is -1(not set)
    * @param wait: wait to motion finish or not, default is true
    * @param timeout: wait timeout, seconds, default is 100s.
    * @param auto_enable: auto enable if not enabled, default is true
    * @return: See the code documentation for details.
    */
-  int set_linear_track_pos(int pos, int speed = 0, bool wait = true, fp32 timeout = 100, bool auto_enable = true);
+  int set_linear_motor_pos(int pos, int speed = 0, bool wait = true, fp32 timeout = 100, bool auto_enable = true);
+  // Old API name, only for compatibility with old code, please use `set_linear_motor_pos` instead
+  int set_linear_track_pos(int pos, int speed = 0, bool wait = true, fp32 timeout = 100, bool auto_enable = true) { return set_linear_motor_pos(pos, speed, wait, timeout, auto_enable); }
 
   /**
-   * @brief Set the linear track to stop
+   * @brief Set the linear motor to stop
    *  Note: only available if firmware_version >= 1.8.0
    * 
    * @return: See the code documentation for details.
    */
-  int set_linear_track_stop(void);
+  int set_linear_motor_stop(void);
+  // Old API name, only for compatibility with old code, please use `set_linear_motor_stop` instead
+  int set_linear_track_stop(void) { return set_linear_motor_stop(); }
 
   int set_timeout(fp32 timeout);
 
   /**
    * @brief Enable auto checkset the baudrate of the end IO board or not
-   *  Note: only available in the API of gripper/bio/robotiq/linear_track.
+   *  Note: only available in the API of gripper/bio/robotiq/linear_motor.
    */
   int set_baud_checkset_enable(bool enable);
   
@@ -2286,7 +2398,7 @@ public:
    *  1: xarm gripper
    *  2: bio gripper
    *  3: robotiq gripper
-   *  4: linear track
+   *  4: linear motor
    * @param baud: checkset baud value, less than or equal to 0 means disable checkset
    * @return: See the code documentation for details.
    */
@@ -2299,7 +2411,7 @@ public:
    *  1: xarm gripper
    *  2: bio gripper
    *  3: robotiq gripper
-   *  4: linear track
+   *  4: linear motor
    * @param baud: checkset baud value, less than or equal to 0 means disable checkset
    * @return: See the code documentation for details.
    */
@@ -2654,7 +2766,7 @@ public:
   int set_ft_collision_rebound(int on_off);
 
   /**
-   * @brief Set the threshold of the collision detection with the Six-axis Force Torque Sensor
+   * @brief Set the thresholds of the collision detection with the Six-axis Force Torque Sensor
    *  Note:
    *    1. only available if firmware_version >= 2.6.103
    * 
@@ -2684,6 +2796,22 @@ public:
    * return: See the code documentation for details.
    */
   int set_ft_collision_reb_distance(float distances[6]);
+
+  /**
+   * @brief Set the reaction thresholds in each direction under the admittance control mode of the Six-axis Force Torque Sensor
+   *  Note:
+   *    1. only available if firmware_version >= 2.6.110
+   * 
+   * @param thresholds: reaction thresholds, [x(N), y(N), z(N), Rx(Nm), Ry(Nm), Rz(Nm)]
+   *    x: [0.1, 50] (N)
+   *    y: [0.1, 50] (N)
+   *    z: [0.1, 50] (N)
+   *    Rx: [0.01, 2] (Nm)
+   *    Ry: [0.01, 2] (Nm)
+   *    Rz: [0.01, 2] (Nm)
+   * return: See the code documentation for details.
+   */
+  int set_ft_admittance_ctrl_threshold(float thresholds[6]);
   
   /**
    * @brief Get the collision detection with the Six-axis Force Torque Sensor is enable or not
@@ -2706,11 +2834,11 @@ public:
   int get_ft_collision_rebound(int *on_off);
 
   /**
-   * @brief Get the collision threshold with the Six-axis Force Torque Sensor
+   * @brief Get the collision thresholds with the Six-axis Force Torque Sensor
    *  Note:
    *    1. only available if firmware_version >= 2.6.103
    * 
-   * @param thresholds: collision threshold
+   * @param thresholds: collision detection thresholds
    * return: See the code documentation for details.
    */
   int get_ft_collision_threshold(float thresholds[6]);
@@ -2720,10 +2848,20 @@ public:
    *  Note:
    *    1. only available if firmware_version >= 2.6.103
    * 
-   * @param distances: rebound distance
+   * @param distances: rebound distance, [x(mm), y(mm), z(mm), Rx(° or rad), Ry(° or rad), Rz(° or rad)]
    * return: See the code documentation for details.
    */
   int get_ft_collision_reb_distance(float distances[6]);
+
+  /**
+   * @brief Get the reaction thresholds in each direction under the admittance control mode of the Six-axis Force Torque Sensor
+   *  Note:
+   *    1. only available if firmware_version >= 2.6.110
+   * 
+   * @param thresholds: reaction thresholds, [x(N), y(N), z(N), Rx(Nm), Ry(Nm), Rz(Nm)]
+   * return: See the code documentation for details.
+   */
+  int get_ft_admittance_ctrl_threshold(float thresholds[6]);
 
   /**
    * @brief (Standard Modbus TCP) Read Coils (0x01)
@@ -2900,11 +3038,10 @@ private:
   int _check_gripper_position(int target_pos, fp32 timeout = 10);
   int _check_gripper_status(fp32 timeout = 10);
   bool _gripper_is_support_status(void);
-  int _get_gripper_status(int *status);
 
-  int _get_linear_track_registers(unsigned char *ret_data, int addr, int number_of_registers = 1);
-  int _wait_linear_track_stop(fp32 timeout = 100);
-  int _wait_linear_track_back_origin(fp32 timeout = 10);
+  int _get_linear_motor_registers(unsigned char *ret_data, int addr, int number_of_registers = 1);
+  int _wait_linear_motor_stop(fp32 timeout = 100);
+  int _wait_linear_motor_back_origin(fp32 timeout = 10);
 
   bool _is_rich_reported(void);
 
@@ -2969,8 +3106,8 @@ private:
   int modbus_baud_;
   bool robotiq_is_activated_;
   int robotiq_error_code_;
-  int linear_track_baud_;
-  int linear_track_speed_;
+  int linear_motor_baud_;
+  int linear_motor_speed_;
 
   bool xarm_gripper_is_enabled_;
   int xarm_gripper_error_;
@@ -3003,7 +3140,7 @@ private:
   int default_bio_baud_;
   int default_gripper_baud_;
   int default_robotiq_baud_;
-  int default_linear_track_baud_;
+  int default_linear_motor_baud_;
   bool baud_checkset_flag_;
 
   bool keep_heart_;

@@ -253,6 +253,11 @@ namespace xarm_csharp_demo
             return XArmAPI.get_gripper_g2_position(ref pos, robot_instance_id);
         }
 
+        public int get_gripper_status(ref int status)
+        {
+            return XArmAPI.get_gripper_status(ref status, robot_instance_id);
+        }
+
         public int get_gripper_err_code(ref int err)
         {
             return XArmAPI.get_gripper_err_code(ref err, robot_instance_id);
@@ -644,59 +649,59 @@ namespace xarm_csharp_demo
             return XArmAPI.vc_set_cartesian_velocity(speeds, is_tool_coord, duration, robot_instance_id);
         }
 
-        public int set_impedance(int coord, int[] c_axis, float[] M, float[] K, float[] B)
+        public int set_ft_sensor_admittance_parameters(int coord, int[] c_axis, float[] M, float[] K, float[] B)
         {
-            return XArmAPI.set_impedance(coord, c_axis, M, K, B, robot_instance_id);
+            return XArmAPI.set_ft_sensor_admittance_parameters(coord, c_axis, M, K, B, robot_instance_id);
         }
 
-        public int set_impedance_mbk(float[] M, float[] K, float[] B)
+        public int set_ft_sensor_admittance_parameters(float[] M, float[] K, float[] B)
         {
-            return XArmAPI.set_impedance_mbk(M, K, B, robot_instance_id);
+            return XArmAPI.set_ft_sensor_admittance_parameters(M, K, B, robot_instance_id);
         }
 
-        public int set_impedance_config(int coord, int[] c_axis)
+        public int set_ft_sensor_admittance_parameters(int coord, int[] c_axis)
         {
-            return XArmAPI.set_impedance_config(coord, c_axis, robot_instance_id);
+            return XArmAPI.set_ft_sensor_admittance_parameters(coord, c_axis, robot_instance_id);
         }
 
-        public int config_force_control(int coord, int[] c_axis, float[] f_ref, float[] limits)
+        public int set_ft_sensor_force_parameters(int coord, int[] c_axis, float[] f_ref, float[] limits)
         {
-            return XArmAPI.config_force_control(coord, c_axis, f_ref, limits, robot_instance_id);
+            return XArmAPI.set_ft_sensor_force_parameters(coord, c_axis, f_ref, limits, robot_instance_id);
         }
 
-        public int set_force_control_pid(float[] kp, float[] ki, float[] kd, float[] xe_limit)
+        public int set_ft_sensor_force_parameters(float[] kp, float[] ki, float[] kd, float[] xe_limit)
         {
-            return XArmAPI.set_force_control_pid(kp, ki, kd, xe_limit, robot_instance_id);
+            return XArmAPI.set_ft_sensor_force_parameters(kp, ki, kd, xe_limit, robot_instance_id);
         }
 
-        public int ft_sensor_set_zero()
+        public int set_ft_sensor_zero()
         {
-            return XArmAPI.ft_sensor_set_zero(robot_instance_id);
+            return XArmAPI.set_ft_sensor_zero(robot_instance_id);
         }
 
-        public int ft_sensor_iden_load(float[] result)
+        public int iden_ft_sensor_load_offset(float[] result)
         {
-            return XArmAPI.ft_sensor_iden_load(result, robot_instance_id);
+            return XArmAPI.iden_ft_sensor_load_offset(result, robot_instance_id);
         }
 
-        public int ft_sensor_cali_load(float[] load, bool association_setting_tcp_load = false, float m = (float)0.270, float x = -17, float y = 9, float z = (float)11.8)
+        public int set_ft_sensor_load_offset(float[] load_offset, bool association_setting_tcp_load = false, float m = (float)0.270, float x = -17, float y = 9, float z = (float)11.8)
         {
-            return XArmAPI.ft_sensor_cali_load(load, association_setting_tcp_load, m, x, y, z, robot_instance_id);
+            return XArmAPI.set_ft_sensor_load_offset(load_offset, association_setting_tcp_load, m, x, y, z, robot_instance_id);
         }
 
-        public int ft_sensor_enable(int on_off)
+        public int set_ft_sensor_enable(int on_off)
         {
-            return XArmAPI.ft_sensor_enable(on_off, robot_instance_id);
+            return XArmAPI.set_ft_sensor_enable(on_off, robot_instance_id);
         }
 
-        public int ft_sensor_app_set(int app_code)
+        public int set_ft_sensor_mode(int mode)
         {
-            return XArmAPI.ft_sensor_app_set(app_code, robot_instance_id);
+            return XArmAPI.set_ft_sensor_mode(mode, robot_instance_id);
         }
 
-        public int ft_sensor_app_get(ref int app_code)
+        public int get_ft_sensor_mode(ref int mode)
         {
-            return XArmAPI.ft_sensor_app_get(ref app_code, robot_instance_id);
+            return XArmAPI.get_ft_sensor_mode(ref mode, robot_instance_id);
         }
 
         public int get_ft_sensor_data(float[] ft_data, bool is_raw)
@@ -704,11 +709,11 @@ namespace xarm_csharp_demo
             return XArmAPI.get_ft_sensor_data(ft_data, is_raw, robot_instance_id);
         }
 
-        public int get_ft_sensor_config(ref int ft_app_status, ref int ft_is_started, ref int ft_type, ref int ft_id, ref int ft_freq, 
+        public int get_ft_sensor_config(ref int ft_mode, ref int ft_is_started, ref int ft_type, ref int ft_id, ref int ft_freq, 
             ref float ft_mass, ref float ft_dir_bias, float[] ft_centroid, float[] ft_zero, ref int imp_coord, int[] imp_c_axis, float[] M, float[] K, float[] B,
             ref int f_coord, int[] f_c_axis, float[] f_ref, float[] f_limits, float[] kp, float[] ki, float[] kd, float[] xe_limit)
         {
-            return XArmAPI.get_ft_sensor_config(ref ft_app_status, ref ft_is_started, ref ft_type, ref ft_id, ref ft_freq, ref ft_mass, ref ft_dir_bias, 
+            return XArmAPI.get_ft_sensor_config(ref ft_mode, ref ft_is_started, ref ft_type, ref ft_id, ref ft_freq, ref ft_mass, ref ft_dir_bias, 
                 ft_centroid, ft_zero, ref imp_coord, imp_c_axis, M, K, B, ref f_coord, f_c_axis, f_ref, f_limits, kp, ki, kd, xe_limit, robot_instance_id);
         }
 
@@ -722,69 +727,69 @@ namespace xarm_csharp_demo
             return XArmAPI.iden_tcp_load(result, estimated_mass, robot_instance_id);
         }
 
-        public int get_linear_track_error(ref int err)
+        public int get_linear_motor_error(ref int err)
         {
-            return XArmAPI.get_linear_track_error(ref err, robot_instance_id);
+            return XArmAPI.get_linear_motor_error(ref err, robot_instance_id);
         }
 
-        public int get_linear_track_status(ref int status)
+        public int get_linear_motor_status(ref int status)
         {
-            return XArmAPI.get_linear_track_status(ref status, robot_instance_id);
+            return XArmAPI.get_linear_motor_status(ref status, robot_instance_id);
         }
 
-        public int get_linear_track_pos(ref int pos)
+        public int get_linear_motor_pos(ref int pos)
         {
-            return XArmAPI.get_linear_track_pos(ref pos, robot_instance_id);
+            return XArmAPI.get_linear_motor_pos(ref pos, robot_instance_id);
         }
 
-        public int get_linear_track_is_enabled(ref int status)
+        public int get_linear_motor_is_enabled(ref int status)
         {
-            return XArmAPI.get_linear_track_is_enabled(ref status, robot_instance_id);
+            return XArmAPI.get_linear_motor_is_enabled(ref status, robot_instance_id);
         }
 
-        public int get_linear_track_on_zero(ref int status)
+        public int get_linear_motor_on_zero(ref int status)
         {
-            return XArmAPI.get_linear_track_on_zero(ref status, robot_instance_id);
+            return XArmAPI.get_linear_motor_on_zero(ref status, robot_instance_id);
         }
 
-        public int get_linear_track_sci(ref int sci1)
+        public int get_linear_motor_sci(ref int sci1)
         {
-            return XArmAPI.get_linear_track_sci(ref sci1, robot_instance_id);
+            return XArmAPI.get_linear_motor_sci(ref sci1, robot_instance_id);
         }
 
-        public int get_linear_track_sco(int[] sco)
+        public int get_linear_motor_sco(int[] sco)
         {
-            return XArmAPI.get_linear_track_sco(sco, robot_instance_id);
+            return XArmAPI.get_linear_motor_sco(sco, robot_instance_id);
         }
 
-        public int clean_linear_track_error()
+        public int clean_linear_motor_error()
         {
-            return XArmAPI.clean_linear_track_error(robot_instance_id);
+            return XArmAPI.clean_linear_motor_error(robot_instance_id);
         }
 
-        public int set_linear_track_enable(bool enable)
+        public int set_linear_motor_enable(bool enable)
         {
-            return XArmAPI.set_linear_track_enable(enable, robot_instance_id);
+            return XArmAPI.set_linear_motor_enable(enable, robot_instance_id);
         }
 
-        public int set_linear_track_speed(int speed)
+        public int set_linear_motor_speed(int speed)
         {
-            return XArmAPI.set_linear_track_speed(speed, robot_instance_id);
+            return XArmAPI.set_linear_motor_speed(speed, robot_instance_id);
         }
 
-        public int set_linear_track_back_origin(bool wait = true, bool auto_enable = true)
+        public int set_linear_motor_back_origin(bool wait = true, bool auto_enable = true)
         {
-            return XArmAPI.set_linear_track_back_origin(wait, auto_enable, robot_instance_id);
+            return XArmAPI.set_linear_motor_back_origin(wait, auto_enable, robot_instance_id);
         }
 
-        public int set_linear_track_pos(int pos, int speed = 0, bool wait = true, float timeout = 100, bool auto_enable = true)
+        public int set_linear_motor_pos(int pos, int speed = 0, bool wait = true, float timeout = 100, bool auto_enable = true)
         {
-            return XArmAPI.set_linear_track_pos(pos, speed, wait, timeout, auto_enable, robot_instance_id);
+            return XArmAPI.set_linear_motor_pos(pos, speed, wait, timeout, auto_enable, robot_instance_id);
         }
 
-        public int set_linear_track_stop()
+        public int set_linear_motor_stop()
         {
-            return XArmAPI.set_linear_track_stop(robot_instance_id);
+            return XArmAPI.set_linear_motor_stop(robot_instance_id);
         }
 
         public int set_timeout(float timeout)
@@ -962,6 +967,11 @@ namespace xarm_csharp_demo
             return XArmAPI.set_ft_collision_reb_distance(distances, robot_instance_id);
         }
 
+        public int set_ft_admittance_ctrl_threshold(float[] thresholds)
+        {
+            return XArmAPI.set_ft_admittance_ctrl_threshold(thresholds, robot_instance_id);
+        }
+
         public int get_ft_collision_detection(ref int on_off)
         {
             return XArmAPI.get_ft_collision_detection(ref on_off, robot_instance_id);
@@ -980,6 +990,11 @@ namespace xarm_csharp_demo
         public int get_ft_collision_reb_distance(float[] distances)
         {
             return XArmAPI.get_ft_collision_reb_distance(distances, robot_instance_id);
+        }
+
+        public int get_ft_admittance_ctrl_threshold(float[] thresholds)
+        {
+            return XArmAPI.get_ft_admittance_ctrl_threshold(thresholds, robot_instance_id);
         }
 
         public int read_coil_bits(UInt16 addr, UInt16 quantity, byte[] bits)
@@ -1049,6 +1064,127 @@ namespace xarm_csharp_demo
         public int set_servo_angle(float[] angles, bool wait = false, float timeout = NO_TIMEOUT, float radius = -1, bool relative = false)
         {
             return set_servo_angle(angles, 0, 0, 0, wait, timeout, radius, relative);
+        }
+
+        // OLD API
+        public int get_linear_track_error(ref int err)
+        {
+            return get_linear_motor_error(ref err);
+        }
+
+        public int get_linear_track_status(ref int status)
+        {
+            return get_linear_motor_status(ref status);
+        }
+
+        public int get_linear_track_pos(ref int pos)
+        {
+            return get_linear_motor_pos(ref pos);
+        }
+
+        public int get_linear_track_is_enabled(ref int status)
+        {
+            return get_linear_motor_is_enabled(ref status);
+        }
+
+        public int get_linear_track_on_zero(ref int status)
+        {
+            return get_linear_motor_on_zero(ref status);
+        }
+
+        public int get_linear_track_sci(ref int sci1)
+        {
+            return get_linear_motor_sci(ref sci1);
+        }
+
+        public int get_linear_track_sco(int[] sco)
+        {
+            return get_linear_motor_sco(sco);
+        }
+
+        public int clean_linear_track_error()
+        {
+            return clean_linear_motor_error();
+        }
+
+        public int set_linear_track_enable(bool enable)
+        {
+            return set_linear_motor_enable(enable);
+        }
+
+        public int set_linear_track_speed(int speed)
+        {
+            return set_linear_motor_speed(speed);
+        }
+
+        public int set_linear_track_back_origin(bool wait = true, bool auto_enable = true)
+        {
+            return set_linear_motor_back_origin(wait, auto_enable);
+        }
+
+        public int set_linear_track_pos(int pos, int speed = 0, bool wait = true, float timeout = 100, bool auto_enable = true)
+        {
+            return set_linear_motor_pos(pos, speed, wait, timeout, auto_enable);
+        }
+
+        public int set_linear_track_stop()
+        {
+            return set_linear_motor_stop();
+        }
+
+        public int set_impedance(int coord, int[] c_axis, float[] M, float[] K, float[] B)
+        {
+            return set_ft_sensor_admittance_parameters(coord, c_axis, M, K, B);
+        }
+
+        public int set_impedance_mbk(float[] M, float[] K, float[] B)
+        {
+            return set_ft_sensor_admittance_parameters(M, K, B);
+        }
+
+        public int set_impedance_config(int coord, int[] c_axis)
+        {
+            return set_ft_sensor_admittance_parameters(coord, c_axis);
+        }
+
+        public int config_force_control(int coord, int[] c_axis, float[] f_ref, float[] limits)
+        {
+            return set_ft_sensor_force_parameters(coord, c_axis, f_ref, limits);
+        }
+
+        public int set_force_control_pid(float[] kp, float[] ki, float[] kd, float[] xe_limit)
+        {
+            return set_ft_sensor_force_parameters(kp, ki, kd, xe_limit);
+        }
+
+        public int ft_sensor_set_zero()
+        {
+            return set_ft_sensor_zero();
+        }
+
+        public int ft_sensor_iden_load(float[] result)
+        {
+            return iden_ft_sensor_load_offset(result);
+        }
+
+        public int ft_sensor_cali_load(float[] load_offset, bool association_setting_tcp_load = false, float m = (float)0.270, float x = -17, float y = 9, float z = (float)11.8)
+        {
+            return set_ft_sensor_load_offset(load_offset, association_setting_tcp_load, m, x, y, z);
+        }
+
+        public int ft_sensor_enable(int on_off)
+        {
+            return set_ft_sensor_enable(on_off);
+        }
+
+        public int ft_sensor_app_set(int mode)
+        {
+            return set_ft_sensor_mode(mode);
+        }
+
+        public int ft_sensor_app_get(ref int mode)
+        {
+            return get_ft_sensor_mode(ref mode);
         }
     }
 }

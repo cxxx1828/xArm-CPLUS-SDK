@@ -176,7 +176,7 @@
     <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_ft_sensor.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_track.cc">
+    <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_linear_motor.cc">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\xarm\wrapper\xarm_modbus_tcp.cc">
