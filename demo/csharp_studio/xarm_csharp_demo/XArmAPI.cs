@@ -565,12 +565,12 @@ namespace xarm_csharp_demo
             return set_impedance_mbk(M, K, B, instance_id);
         }
 
-        public static extern int set_ft_sensor_force_parameters(int coord, int[] c_axis, float[] f_ref, float[] limits, int instance_id = -1)
+        public static int set_ft_sensor_force_parameters(int coord, int[] c_axis, float[] f_ref, float[] limits, int instance_id = -1)
         {
             return config_force_control(coord, c_axis, f_ref, limits, instance_id);
         }
 
-        public static extern int set_ft_sensor_force_parameters(float[] kp, float[] ki, float[] kd, float[] xe_limit, int instance_id = -1)
+        public static int set_ft_sensor_force_parameters(float[] kp, float[] ki, float[] kd, float[] xe_limit, int instance_id = -1)
         {
             return set_force_control_pid(kp, ki, kd, xe_limit, instance_id);
         }
@@ -582,9 +582,9 @@ namespace xarm_csharp_demo
         }
         public static int get_linear_track_status(ref int status, int instance_id = -1)
         {
-            return get_linear_motor_status(ref err, instance_id);
+            return get_linear_motor_status(ref status, instance_id);
         }
-        public static int get_linear_track_pos(ref int status, int instance_id = -1)
+        public static int get_linear_track_pos(ref int pos, int instance_id = -1)
         {
             return get_linear_motor_pos(ref pos, instance_id);
         }
