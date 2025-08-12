@@ -1,4 +1,4 @@
-# xArm-C++-SDK API Documentation (V1.17.0)
+# xArm-C++-SDK API Documentation (V1.18.0)
 
 ## class __XArmAPI__
 ************************************
@@ -1685,44 +1685,97 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
+- __int set_rs485_timeout(int timeout, std::string target = "robot", std::string protocol = "modbus_rtu")__
 - __int set_tgpio_modbus_timeout(int timeout, bool is_transparent_transmission = false)__
-  > Set the modbus timeout of the tool gpio
+  > Set the timeout of the target RS485  
+  > &ensp;&ensp;&ensp;&ensp;Old API name(set_tgpio_modbus_timeout), only for compatibility with old code, please use `set_rs485_timeout` instead  
   > 
   > @param timeout: timeout, milliseconds  
+  > @param target: "robot" or "control_box"  
+  > &ensp;&ensp;&ensp;&ensp;robot: Robot RS485  
+  > &ensp;&ensp;&ensp;&ensp;control_box: ControlBox RS485  
+  > @param timeout: protocol: "modbus_rtu" or "transparent"  
+  > &ensp;&ensp;&ensp;&ensp;modbus_rtu: Modbus RTU  
+  > &ensp;&ensp;&ensp;&ensp;transparent: Transparent Transmission  
   > @param is_transparent_transmission: whether the set timeout is the timeout of transparent transmission  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.11.0
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int set_tgpio_modbus_baudrate(int baud)__
-  > Set the modbus baudrate of the tool gpio
+- __int get_rs485_timeout(int *timeout, std::string target = "robot", std::string protocol = "modbus_rtu")__
+- __int get_tgpio_modbus_timeout(int *timeout, bool is_transparent_transmission = false)__
+  > Get the timeout of the target RS485  
+  > Note:  
+  > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.3.0  
+  > &ensp;&ensp;&ensp;&ensp;Old API name(get_tgpio_modbus_timeout), only for compatibility with old code, please use `get_rs485_timeout` instead 
   > 
-  > @param baud: baudrate, 4800/9600/19200/38400/57600/115200/230400/460800/921600/1000000/1500000/2000000/2500000
+  > @param timeout: the result of timeout, milliseconds  
+  > @param target: "robot" or "control_box"  
+  > &ensp;&ensp;&ensp;&ensp;robot: Robot RS485  
+  > &ensp;&ensp;&ensp;&ensp;control_box: ControlBox RS485  
+  > @param timeout: protocol: "modbus_rtu" or "transparent"  
+  > &ensp;&ensp;&ensp;&ensp;modbus_rtu: Modbus RTU  
+  > &ensp;&ensp;&ensp;&ensp;transparent: Transparent Transmission 
+  > @param is_transparent_transmission: is transparent transmission or not   
+  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
+
+- __int set_rs485_baudrate(int baud, std::string target = "robot")__
+  > Set the baudrate of the target RS485  
+  > 
+  > @param baud: baudrate, 4800/9600/19200/38400/57600/115200/230400/460800/921600/1000000/1500000/2000000/2500000  
+  > @param target: "robot" or "control_box"  
+  > &ensp;&ensp;&ensp;&ensp;robot: Robot RS485  
+  > &ensp;&ensp;&ensp;&ensp;control_box: ControlBox RS485  
   > 
   > return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int get_tgpio_modbus_baudrate(int *baud)__
-  > Get the modbus baudrate of the tool gpio
+- __int get_rs485_baudrate(int *baud, std::string target = "robot")__
+  > Get the modbus baudrate of the target RS485  
   > 
   > @param baud: the result of baudrate
+  > @param target: "robot" or "control_box"  
+  > &ensp;&ensp;&ensp;&ensp;robot: Robot RS485  
+  > &ensp;&ensp;&ensp;&ensp;control_box: ControlBox RS485  
   > 
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 
-- __int getset_tgpio_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id = 9, bool is_transparent_transmission = false)__
-  > Send the modbus data to the tool gpio
+- __int getset_tgpio_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id = 9, bool is_transparent_transmission = false, bool use_503_port = false)__
+  > Send the modbus data to the Robot RS485
+  > &ensp;&ensp;&ensp;&ensp;Old API name, only for compatibility with old code, please use `set_rs485_data` instead  
   > 
   > @param modbus_data: send data  
   > @param modbus_length: the length of the modbus_data  
   > @param ret_data: the response data of the modbus  
   > @param ret_length: the length of the response data  
   > @param host_id: host id  
-  > &ensp;&ensp;&ensp;&ensp;9: END RS485  
-  > &ensp;&ensp;&ensp;&ensp;11: Controller RS485  
+  > &ensp;&ensp;&ensp;&ensp;9: Robot RS485  
+  > &ensp;&ensp;&ensp;&ensp;11: ControlBox RS485  
   > @param is_transparent_transmission: whether to choose transparent transmission, default is false  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.11.0 
+  > @param use_503_port: whether to use port 503 for communication, default is false  
+  > &ensp;&ensp;&ensp;&ensp;Note: if it is true, it will connect to 503 port for communication when it is used for the first time, which is generally only useful for transparent transmission  
+  > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.11.0  
+  > 
+  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
+
+  - __int set_rs485_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, std::string target = "robot", std::string protocol = "modbus_rtu", bool use_503_port = false)__
+  > Send the modbus data to the target RS485
+  > 
+  > @param modbus_data: send data  
+  > @param modbus_length: the length of the modbus_data  
+  > @param ret_data: the response data of the modbus  
+  > @param ret_length: the length of the response data  
+  > @param target: "robot" or "control_box"  
+  > &ensp;&ensp;&ensp;&ensp;robot: Robot RS485  
+  > &ensp;&ensp;&ensp;&ensp;control_box: ControlBox RS485  
+  > @param timeout: protocol: "modbus_rtu" or "transparent"  
+  > &ensp;&ensp;&ensp;&ensp;modbus_rtu: Modbus RTU  
+  > &ensp;&ensp;&ensp;&ensp;transparent: Transparent Transmission 
   > @param use_503_port: whether to use port 503 for communication, default is false  
   > &ensp;&ensp;&ensp;&ensp;Note: if it is true, it will connect to 503 port for communication when it is used for the first time, which is generally only useful for transparent transmission  
   > &ensp;&ensp;&ensp;&ensp;Note: only available if firmware_version >= 1.11.0  
@@ -2428,15 +2481,6 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.3.0  
   > 
   > @param num: history num   
-  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
-
-- __int get_tgpio_modbus_timeout(int *timeout, bool is_transparent_transmission = false)__
-  > Get tgpio modbus timeout  
-  > Note:  
-  > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.3.0  
-  > 
-  > @param timeout: timeout, milliseconds   
-  > @param is_transparent_transmission: is transparent transmission or not   
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 - __int get_poe_status(int *status)__

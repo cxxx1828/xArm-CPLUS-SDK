@@ -171,10 +171,10 @@ public:
   int gripper_get_errcode(int rx_data[2]);
   int gripper_clean_err(void);
 
-  int tgpio_addr_w16(int addr, float value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID, char *add_data = NULL, int add_len = 0);
-  int tgpio_addr_r16(int addr, int *value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
-  int tgpio_addr_w32(int addr, float value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
-  int tgpio_addr_r32(int addr, int *value, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
+  int tgpio_addr_w16(int addr, float value, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID, char *add_data = NULL, int add_len = 0);
+  int tgpio_addr_r16(int addr, int *value, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID);
+  int tgpio_addr_w32(int addr, float value, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID);
+  int tgpio_addr_r32(int addr, int *value, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID);
   int tgpio_get_digital(int *io0, int *io1, int *io2 = NULL, int *io3 = NULL, int *io4 = NULL);
   int tgpio_set_digital(int ionum, int value, int sync = -1);
   int tgpio_get_analog1(float *value);
@@ -182,7 +182,7 @@ public:
 
   int set_modbus_timeout(int value, bool is_transparent_transmission = false);
   int set_modbus_baudrate(int baud);
-  int tgpio_set_modbus(unsigned char *send_data, int length, unsigned char *recv_data, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID, float limit_sec = 0.0, bool is_transparent_transmission = false);
+  int tgpio_set_modbus(unsigned char *send_data, int length, unsigned char *recv_data, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID, float limit_sec = 0.0, bool is_transparent_transmission = false);
   int gripper_modbus_w16s(int addr, int value, int count);
   int gripper_modbus_r16s(int addr, int count, unsigned char *rx_data);
   int gripper_modbus_set_en(int value);

@@ -944,7 +944,7 @@ int UxbusCmd::tgpio_set_digital(int ionum, int value, int sync) {
   }
   if (sync >= 0) {
     char additional[1] = { (char)sync };
-    return tgpio_addr_w16(SERVO3_RG::DIGITAL_OUT, (float)tmp, UXBUS_CONF::TGPIO_HOST_ID, additional, 1);
+    return tgpio_addr_w16(SERVO3_RG::DIGITAL_OUT, (float)tmp, UXBUS_CONF::ROBOT_RS485_HOST_ID, additional, 1);
   }
   return tgpio_addr_w16(SERVO3_RG::DIGITAL_OUT, (float)tmp);
 }
@@ -1000,14 +1000,14 @@ int UxbusCmd::tgpio_set_modbus(unsigned char *modbus_t, int len_t, unsigned char
     long long limit_us = (long long)(limit_sec * 1000000);
     if (diff_us < limit_us) sleep_us(limit_us - diff_us);
   }
-  int ret = _send_modbus_request(is_transparent_transmission ? UXBUS_RG::TGPIO_COM_DATA : UXBUS_RG::TGPIO_MODBUS, txdata, len_t + 1);
+  int ret = _send_modbus_request(is_transparent_transmission ? UXBUS_RG::RS485_AGENT : UXBUS_RG::RS485_RTU, txdata, len_t + 1);
   delete[] txdata;
   if (-1 == ret) { 
     last_modbus_comm_us_ = get_us();
     return UXBUS_STATE::ERR_NOTTCP;
   }
 
-  ret = _recv_modbus_response(is_transparent_transmission ? UXBUS_RG::TGPIO_COM_DATA : UXBUS_RG::TGPIO_MODBUS, ret, rx_data, -1, S_TOUT_);
+  ret = _recv_modbus_response(is_transparent_transmission ? UXBUS_RG::RS485_AGENT : UXBUS_RG::RS485_RTU, ret, rx_data, -1, S_TOUT_);
   last_modbus_comm_us_ = get_us();
   return ret;
 }
@@ -1025,7 +1025,7 @@ int UxbusCmd::gripper_modbus_w16s(int addr, int value, int count) {
   else // count == 2
     bin32_to_8(value, &txdata[7]);
   // fp32_to_hex(value, &txdata[7]);
-  int ret = tgpio_set_modbus_func(txdata, count * 2 + 7, rx_data, UXBUS_CONF::TGPIO_HOST_ID, 0.0, false);
+  int ret = tgpio_set_modbus_func(txdata, count * 2 + 7, rx_data, UXBUS_CONF::ROBOT_RS485_HOST_ID, 0.0, false);
   delete[] txdata;
   delete[] rx_data;
   return ret;
@@ -1037,7 +1037,7 @@ int UxbusCmd::gripper_modbus_r16s(int addr, int count, unsigned char *rx_data) {
   txdata[1] = 0x03;
   bin16_to_8(addr, &txdata[2]);
   bin16_to_8(count, &txdata[4]);
-  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::TGPIO_HOST_ID, 0.0, false);
+  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::ROBOT_RS485_HOST_ID, 0.0, false);
   delete[] txdata;
   return ret;
 }
@@ -1754,7 +1754,7 @@ int UxbusCmd::linear_motor_modbus_r16s(int addr, unsigned char *rx_data, int len
   txdata[1] = fcode;
   bin16_to_8(addr, &txdata[2]);
   bin16_to_8(len, &txdata[4]);
-  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID, (float)0.001, false);
+  int ret = tgpio_set_modbus_func(txdata, 6, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID, (float)0.001, false);
   delete[] txdata;
   return ret;
 }
@@ -1768,7 +1768,7 @@ int UxbusCmd::linear_motor_modbus_w16s(int addr, unsigned char *send_data, int l
   bin16_to_8(len, &txdata[4]);
   txdata[6] = len * 2;
   memcpy(&txdata[7], send_data, len * 2);
-  int ret = tgpio_set_modbus_func(txdata, len * 2 + 7, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID, (float)0.001, false);
+  int ret = tgpio_set_modbus_func(txdata, len * 2 + 7, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID, (float)0.001, false);
   delete[] txdata;
   return ret;
 }

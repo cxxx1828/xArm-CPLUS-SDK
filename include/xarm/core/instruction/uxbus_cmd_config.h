@@ -125,7 +125,7 @@ public:
   static const unsigned char IDEN_FRIC = 115;
 
   static const unsigned char TGPIO_MB_TIOUT = 123;
-  static const unsigned char TGPIO_MODBUS = 124;
+  static const unsigned char RS485_RTU = 124;
   static const unsigned char TGPIO_ERR = 125;
   static const unsigned char TGPIO_W16B = 127;
   static const unsigned char TGPIO_R16B = 128;
@@ -172,7 +172,7 @@ public:
   static const unsigned char GET_COMMON_INFO = 234;
 
   static const unsigned char TGPIO_COM_TIOUT = 240;
-  static const unsigned char TGPIO_COM_DATA = 241;
+  static const unsigned char RS485_AGENT = 241;
 
   static const unsigned char FEEDBACK_CHECK = 253;
   static const unsigned char SET_FEEDBACK_TYPE = 254;
@@ -222,9 +222,10 @@ public:
   static const int TRACK_ID = LINEAR_MOTOR_ID; // old
   static const int GRIPPER_ID = 8;
   
-  static const int TGPIO_HOST_ID = 9;
-  static const int LINEAR_MOTOR_HOST_ID = 11;
-  static const int LINEAR_TRACK_HOST_ID = LINEAR_MOTOR_HOST_ID;  // old
+  static const int ROBOT_RS485_HOST_ID = 9;
+  static const int CONTROL_BOX_RS485_HOST_ID = 11;
+  static const int TGPIO_HOST_ID = ROBOT_RS485_HOST_ID;  // old
+  static const int LINEAR_TRACK_HOST_ID = CONTROL_BOX_RS485_HOST_ID;  // old
   
   static const int MASTER_ID = 0xAA;
   static const int SLAVE_ID = 0x55;

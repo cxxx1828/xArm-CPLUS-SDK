@@ -292,7 +292,7 @@ void XArmAPI::_init(void) {
   gpio_reset_config = new unsigned char[2]{0, 0};
   ft_ext_force = new fp32[6]{ 0, 0, 0, 0, 0, 0 };
   ft_raw_force = new fp32[6]{ 0, 0, 0, 0, 0, 0 };
-  modbus_baud_ = -1;
+  tgpio_modbus_baud_ = -1;
   ignore_error_ = false;
   ignore_state_ = false;
 
@@ -324,7 +324,7 @@ void XArmAPI::_init(void) {
   xarm_gripper_versions_[1] = -1;
   xarm_gripper_versions_[2] = -1;
 
-  linear_motor_baud_ = -1;
+  control_box_modbus_baud_ = -1;
   linear_motor_speed_ = 0;
 
   bio_gripper_version_ = 0;

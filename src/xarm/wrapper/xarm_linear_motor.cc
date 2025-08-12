@@ -15,10 +15,10 @@
 int XArmAPI::_get_linear_motor_registers(unsigned char *ret_data, int addr, int number_of_registers)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::LINEAR_MOTOR_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
 
   int ret = core->linear_motor_modbus_r16s(addr, ret_data, number_of_registers);
-  ret = _check_modbus_code(ret, ret_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID);
+  ret = _check_modbus_code(ret, ret_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID);
   return ret;
 }
 
@@ -134,27 +134,27 @@ int XArmAPI::get_linear_motor_sco(int sco[2])
 int XArmAPI::clean_linear_motor_error(void)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::LINEAR_MOTOR_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
   
   unsigned char send_data[2];
   bin16_to_8(1, send_data);
   unsigned char rx_data[7] = {0};
   int ret = core->linear_motor_modbus_w16s(SERVO3_RG::RESET_ERR, send_data, 1, rx_data);
   get_linear_motor_error(NULL);
-  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID);
+  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID);
   return linear_motor_status.error != 0 ? API_CODE::LINEAR_MOTOR_HAS_FAULT : ret;
 }
 
 int XArmAPI::set_linear_motor_enable(bool enable)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::LINEAR_MOTOR_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
 
   unsigned char rx_data[7] = {0};
   unsigned char send_data[2];
   bin16_to_8((int)enable, send_data);
   int ret = core->linear_motor_modbus_w16s(SERVO3_RG::CON_EN, send_data, 1, rx_data);
-  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID);
+  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID);
   get_linear_motor_registers(NULL, 0x0A23, 3);
   return linear_motor_status.error != 0 ? API_CODE::LINEAR_MOTOR_HAS_FAULT : ret;
 }
@@ -162,13 +162,13 @@ int XArmAPI::set_linear_motor_enable(bool enable)
 int XArmAPI::set_linear_motor_speed(int speed)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::LINEAR_MOTOR_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
   
   unsigned char rx_data[7] = {0};
   unsigned char send_data[2];
   bin16_to_8((int)(speed * 6.667), send_data);
   int ret = core->linear_motor_modbus_w16s(SERVO3_RG::POS_SPD, send_data, 1, rx_data);
-  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID);
+  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID);
   if (ret == 0) {
     linear_motor_speed_ = speed;
   }
@@ -178,11 +178,11 @@ int XArmAPI::set_linear_motor_speed(int speed)
 int XArmAPI::set_linear_motor_back_origin(bool wait, bool auto_enable)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::LINEAR_MOTOR_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
 
   unsigned char rx_data[7] = {0};
   int ret = core->linear_motor_modbus_r16s(SERVO3_RG::BACK_ORIGIN, rx_data, 1, 0x06);
-  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID);
+  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID);
   get_linear_motor_registers(NULL, 0x0A23, 3);
   if (ret == 0 && wait) {
     ret = _wait_linear_motor_back_origin();
@@ -196,7 +196,7 @@ int XArmAPI::set_linear_motor_back_origin(bool wait, bool auto_enable)
 int XArmAPI::set_linear_motor_pos(int pos, int speed, bool wait, fp32 timeout, bool auto_enable)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::LINEAR_MOTOR_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
   
   int ret = get_linear_motor_registers(NULL, 0x0A23, 3);
   if (ret == 0 && linear_motor_status.on_zero != 1) {
@@ -213,7 +213,7 @@ int XArmAPI::set_linear_motor_pos(int pos, int speed, bool wait, fp32 timeout, b
   unsigned char send_data[4];
   bin32_to_8(pos * 2000, send_data);
   ret = core->linear_motor_modbus_w16s(SERVO3_RG::TAGET_POS, send_data, 2, rx_data);
-  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID);
+  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID);
   get_linear_motor_registers(NULL, 0x0A23, 3);
 
   if (ret == 0 && wait) {
@@ -225,13 +225,13 @@ int XArmAPI::set_linear_motor_pos(int pos, int speed, bool wait, fp32 timeout, b
 int XArmAPI::set_linear_motor_stop(void)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::LINEAR_MOTOR_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
+  if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
 
   unsigned char rx_data[7] = {0};
   unsigned char send_data[2];
   bin16_to_8(1, send_data);
   int ret = core->linear_motor_modbus_w16s(SERVO3_RG::STOP_LINEAR_MOTOR, send_data, 1, rx_data);
-  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::LINEAR_MOTOR_HOST_ID);
+  ret = _check_modbus_code(ret, rx_data, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID);
   get_linear_motor_registers(NULL, 0x0A22, 2);
   return linear_motor_status.error != 0 ? API_CODE::LINEAR_MOTOR_HAS_FAULT : ret;
 }

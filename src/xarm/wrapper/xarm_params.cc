@@ -314,15 +314,6 @@ int XArmAPI::get_fdb_mat_history_num(int *num)
   return core->get_common_param(3, num);
 }
 
-int XArmAPI::get_tgpio_modbus_timeout(int *timeout, bool is_transparent_transmission)
-{
-  if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  if (is_transparent_transmission)
-    return core->get_common_param(5, timeout);
-  else
-    return core->get_common_param(4, timeout);
-}
-
 int XArmAPI::get_poe_status(int *status)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;

@@ -11,7 +11,7 @@
 - Protect the arm before unlocking the motor.
 
 ## Update Summary
-- > ### 1.17.0 
+- > ### 1.17.0/1.17.1 
   - Change some API names
 
 - > ### 1.16.0
@@ -29,53 +29,46 @@
   - Added sync parameters to some gpio interfaces to support immediate execution (requires firmware 2.4.101 or above)
   - Added XArmAPIWrapper to C# calls to support simultaneous control of multiple robotic arms
   - Added new interface to support obtaining some error information
-- > ### 1.13.0
-  - Compatible with the standard Modbus TCP protocol, providing part of the standard Modbus TCP protocol interface
-
-- > ### 1.12.2
-  - Support partial Task feedback (requires firmware version greater than or equal to v2.1.0)
-  
-- > ### 1.11.6
-  - Correct the ambiguity that the `set_position_aa` interface is true when both relative and is_tool_coord are true. After the correction, when is_tool_coord is true, relative is invalid (previously is_tool_coord was invalid when relative was true)
-
-- > ### 1.11.5
-  - Optimization pause time is too long (wait=true)
-  - Add common motion api (Enabled after firmware version 1.11.100)
-  - The Cartesian motion-related interface adds the motion_type parameter to determine the planning method (Enabled after firmware version 1.11.100)
 
 - > ### [More](./ReleaseNotes.md)
 
 ## API Change List
-  | OLD API NAME   | NEW API NAME  |
-  | -------------- | ------------- |
-  | set_impedance  |  set_ft_sensor_admittance_parameters  |
-  | set_impedance_mbk  |  set_ft_sensor_admittance_parameters  |
-  | set_impedance_config  |  set_ft_sensor_admittance_parameters  |
-  | set_force_control_pid  |  set_ft_sensor_force_parameters  |
-  | config_force_control  |  set_ft_sensor_force_parameters  |
-  | ft_sensor_set_zero  |  set_ft_sensor_zero  |
-  | ft_sensor_iden_load  |  iden_ft_sensor_load_offset  |
-  | ft_sensor_cali_load  |  set_ft_sensor_load_offset  |
-  | ft_sensor_enable  |  set_ft_sensor_enable  |
-  | ft_sensor_app_set  |  set_ft_sensor_mode  |
-  | ft_sensor_app_get  |  get_ft_sensor_mode  |
-  | get_linear_track_registers  |  get_linear_motor_registers  |
-  | get_linear_track_pos  |  get_linear_motor_pos  |
-  | get_linear_track_status  |  get_linear_motor_status  |
-  | get_linear_track_error  |  get_linear_motor_error  |
-  | get_linear_track_is_enabled  |  get_linear_motor_is_enabled  |
-  | get_linear_track_on_zero  |  get_linear_motor_on_zero  |
-  | get_linear_track_sci  |  get_linear_motor_sci  |
-  | get_linear_track_sco  |  get_linear_motor_sco  |
-  | clean_linear_track_error  |  clean_linear_motor_error  |
-  | set_linear_track_enable  |  set_linear_motor_enable  |
-  | set_linear_track_speed  |  set_linear_motor_speed  |
-  | set_linear_track_back_origin  |  set_linear_motor_back_origin  |
-  | set_linear_track_pos  |  set_linear_motor_pos  |
-  | set_linear_track_stop  |  set_linear_motor_stop  |
-  | get_suction_cup  |  get_vacuum_gripper  |
-  | set_suction_cup  |  set_vacuum_gripper  |
-  | shutdown_system  |  system_control  |
+  | OLD API NAME   | NEW API NAME  |  SDK VERSION  |
+  | -------------- | ------------- |  ------------  |
+  | set_tgpio_modbus_timeout  |  set_rs485_timeout  |  1.17.1  |
+  | get_tgpio_modbus_timeout  |  get_rs485_timeout  |  1.17.1  |
+  | set_tgpio_modbus_baudrate  |  set_rs485_baudrate  |  1.17.1  |
+  | get_tgpio_modbus_baudrate  |  get_rs485_baudrate  |  1.17.1  |
+  | getset_tgpio_modbus_data  |  set_rs485_data  |  1.17.1  |
+  | set_impedance  |  set_ft_sensor_admittance_parameters  |  1.17.0  |
+  | set_impedance_mbk  |  set_ft_sensor_admittance_parameters  |  1.17.0  |
+  | set_impedance_config  |  set_ft_sensor_admittance_parameters  |  1.17.0  |
+  | set_force_control_pid  |  set_ft_sensor_force_parameters  |  1.17.0  |
+  | config_force_control  |  set_ft_sensor_force_parameters  |  1.17.0  |
+  | ft_sensor_set_zero  |  set_ft_sensor_zero  |  1.17.0  |
+  | ft_sensor_iden_load  |  iden_ft_sensor_load_offset  |  1.17.0  |
+  | ft_sensor_cali_load  |  set_ft_sensor_load_offset  |  1.17.0  |
+  | ft_sensor_enable  |  set_ft_sensor_enable  |  1.17.0  |
+  | ft_sensor_app_set  |  set_ft_sensor_mode  |  1.17.0  |
+  | ft_sensor_app_get  |  get_ft_sensor_mode  |  1.17.0  |
+  | get_linear_track_registers  |  get_linear_motor_registers  |  1.17.0  |
+  | get_linear_track_pos  |  get_linear_motor_pos  |  1.17.0  |
+  | get_linear_track_status  |  get_linear_motor_status  |  1.17.0  |
+  | get_linear_track_error  |  get_linear_motor_error  |  1.17.0  |
+  | get_linear_track_is_enabled  |  get_linear_motor_is_enabled  |  1.17.0  |
+  | get_linear_track_on_zero  |  get_linear_motor_on_zero  |  1.17.0  |
+  | get_linear_track_sci  |  get_linear_motor_sci  |  1.17.0  |
+  | get_linear_track_sco  |  get_linear_motor_sco  |  1.17.0  |
+  | clean_linear_track_error  |  clean_linear_motor_error  |  1.17.0  |
+  | set_linear_track_enable  |  set_linear_motor_enable  |  1.17.0  |
+  | set_linear_track_speed  |  set_linear_motor_speed  |  1.17.0  |
+  | set_linear_track_back_origin  |  set_linear_motor_back_origin  |  1.17.0  |
+  | set_linear_track_pos  |  set_linear_motor_pos  |  1.17.0  |
+  | set_linear_track_stop  |  set_linear_motor_stop  |  1.17.0  |
+  | shutdown_system  |  system_control  |  1.13.6  |
+  | get_suction_cup  |  get_vacuum_gripper  |  1.8.0  |
+  | set_suction_cup  |  set_vacuum_gripper  |  1.8.0  |
+  
 
 ## Doc
 - #### [API Document](doc/xarm_cplus_api.md)

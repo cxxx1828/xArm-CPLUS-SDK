@@ -41,7 +41,7 @@
 #define RAD_DEGREE 57.295779513082320876798154814105
 #define TIMEOUT_10 10
 #define NO_TIMEOUT -1
-#define SDK_VERSION "1.17.0"
+#define SDK_VERSION "1.17.1"
 
 typedef unsigned int u32;
 typedef float fp32;
@@ -1744,43 +1744,107 @@ public:
   int clean_bio_gripper_error(void);
 
   /**
-   * @brief Set the modbus timeout of the tool gpio
+   * @brief Set the timeout of the target RS485
    * 
    * @param timeout: timeout, milliseconds
-   * @param is_transparent_transmission: whether the set timeout is the timeout of transparent transmission
+   * @param target: "robot" or "control_box"
+   *  robot: Robot RS485
+   *  control_box: ControlBox RS485
+   * @param protocol: "modbus_rtu" or "transparent"
+   *  modbus_rtu: Modbus RTU
+   *  transparent: Transparent Transmission
+   * @param is_transparent_transmission: whether the set timeout is the timeout of transparent transmission (only for set_tgpio_modbus_timeout)
    *  Note: only available if firmware_version >= 1.11.0
    * @return: See the code documentation for details.
    */
-  int set_tgpio_modbus_timeout(int timeout, bool is_transparent_transmission = false);
+  int set_rs485_timeout(int timeout, std::string target = "robot", std::string protocol = "modbus_rtu");
+  // Overload, just to replace `set_tgpio_modbus_timeout`
+  int set_rs485_timeout(int timeout, bool is_transparent_transmission);
+  // Old API name, only for compatibility with old code, please use `set_rs485_timeout` instead
+  int set_tgpio_modbus_timeout(int timeout, bool is_transparent_transmission = false) { return set_rs485_timeout(timeout, is_transparent_transmission); }
 
   /**
-   * @brief Set the modbus baudrate of the tool gpio
+   * @brief Get the timeout of the target RS485
+   *  Note:
+   *    1. only available if firmware_version >= 2.3.0
+   * 
+   * @param timeout: timeout, milliseconds
+   * @param target: "robot" or "control_box"
+   *  robot: Robot RS485
+   *  control_box: ControlBox RS485
+   * @param protocol: "modbus_rtu" or "transparent"
+   *  modbus_rtu: Modbus RTU
+   *  transparent: Transparent Transmission
+   * @param is_transparent_transmission: is transparent transmission or not  (only for get_tgpio_modbus_timeout)
+   * return: See the code documentation for details.
+   */
+  int get_rs485_timeout(int *timeout, std::string target = "robot", std::string protocol = "modbus_rtu");
+  // Overload, just to replace `get_tgpio_modbus_timeout`
+  int get_rs485_timeout(int *timeout, bool is_transparent_transmission);
+  // Old API name, only for compatibility with old code, please use `get_rs485_timeout` instead
+  int get_tgpio_modbus_timeout(int *timeout, bool is_transparent_transmission = false) { return get_rs485_timeout(timeout, is_transparent_transmission); }
+
+  /**
+   * @brief Set the baudrate of the target RS485
    * 
    * @param baud: baudrate, 4800/9600/19200/38400/57600/115200/230400/460800/921600/1000000/1500000/2000000/2500000
+   * @param target: "robot" or "control_box"
+   *  robot: Robot RS485
+   *  control_box: ControlBox RS485
    * @return: See the code documentation for details.
    */
-  int set_tgpio_modbus_baudrate(int baud);
+  int set_rs485_baudrate(int baud, std::string target = "robot");
+  // Old API name, only for compatibility with old code, please use `set_rs485_baudrate` instead
+  int set_tgpio_modbus_baudrate(int baud)  { return set_rs485_baudrate(baud); }
 
   /**
-   * @brief Get the modbus baudrate of the tool gpio
+   * @brief Get the baudrate of the target RS485
    * 
    * @param baud: the result of baudrate
+   * @param target: "robot" or "control_box"
+   *  robot: Robot RS485
+   *  control_box: ControlBox RS485
    * @return: See the code documentation for details.
    */
-  int get_tgpio_modbus_baudrate(int *baud);
+  int get_rs485_baudrate(int *baud, std::string target = "robot");
+  // Old API name, only for compatibility with old code, please use `get_rs485_baudrate` instead
+  int get_tgpio_modbus_baudrate(int *baud)  { return get_rs485_baudrate(baud); }
 
-  int set_tgpio_modbus_use_503_port(bool use_503_port = true);
+  int set_rs485_use_503_port(bool use_503_port = true);
 
   /**
-   * @brief Send the modbus data to the tool gpio
+   * @brief Send the modbus data to the Robot RS485
+   * 
+   * @param modbus_data: send data
+   * @param modbus_length: the length of the modbus_data
+   * @param ret_data: the response data of the modbus
+   * @param ret_length: the length of the response data
+   * @param target: "robot" or "control_box"
+   *  robot: Robot RS485
+   *  control_box: ControlBox RS485
+   * @param protocol: "modbus_rtu" or "transparent"
+   *  modbus_rtu: Modbus RTU
+   *  transparent: Transparent Transmission
+   * @param use_503_port: whether to use port 503 for communication, default is false
+   *  Note: if it is true, it will connect to 503 port for communication when it is used for the first time, which is generally only useful for transparent transmission
+   *  Note: only available if firmware_version >= 1.11.0
+   * @return: See the code documentation for details.
+   */
+  int set_rs485_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, std::string target = "robot", std::string protocol = "modbus_rtu", bool use_503_port = false);
+  // Overload, just to replace `getset_tgpio_modbus_data`
+  int set_rs485_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id, bool is_transparent_transmission = false, bool use_503_port = false);
+  
+  /**
+   * @brief Send the modbus data to the RS485
+   *  Old API name, only for compatibility with old code, please use `set_rs485_data` instead
    * 
    * @param modbus_data: send data
    * @param modbus_length: the length of the modbus_data
    * @param ret_data: the response data of the modbus
    * @param ret_length: the length of the response data
    * @param host_id: host id, default is 9
-   *   9: END RS485
-   *  11: Controller RS485
+   *   9: Robot RS485
+   *  11: ControlBox RS485
    * @param is_transparent_transmission: whether to choose transparent transmission, default is false
    *  Note: only available if firmware_version >= 1.11.0
    * @param use_503_port: whether to use port 503 for communication, default is false
@@ -1788,8 +1852,24 @@ public:
    *  Note: only available if firmware_version >= 1.11.0
    * @return: See the code documentation for details.
    */
-  int getset_tgpio_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id = 9, bool is_transparent_transmission = false, bool use_503_port = false);
-
+  int getset_tgpio_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID, bool is_transparent_transmission = false, bool use_503_port = false);
+  
+  /**
+   * @brief Send the modbus data to the ControlBox RS485
+   * 
+   * @param modbus_data: send data
+   * @param modbus_length: the length of the modbus_data
+   * @param ret_data: the response data of the modbus
+   * @param ret_length: the length of the response data
+   * @param is_transparent_transmission: whether to choose transparent transmission, default is false
+   *  Note: only available if firmware_version >= 1.11.0
+   * @param use_503_port: whether to use port 503 for communication, default is false
+   *  Note: if it is true, it will connect to 503 port for communication when it is used for the first time, which is generally only useful for transparent transmission
+   *  Note: only available if firmware_version >= 1.11.0
+   * @return: See the code documentation for details.
+   */
+  int getset_control_modbus_data(unsigned char *modbus_data, int modbus_length, unsigned char *ret_data, int ret_length, bool is_transparent_transmission = false, bool use_503_port = false);
+  
   /**
    * @brief Set the reported torque or electric current
    * 
@@ -2633,17 +2713,6 @@ public:
   int get_fdb_mat_history_num(int *num);
 
   /**
-   * @brief Get tgpio modbus timeout
-   *  Note:
-   *    1. only available if firmware_version >= 2.3.0
-   * 
-   * @param timeout: timeout, milliseconds
-   * @param is_transparent_transmission: is transparent transmission or not
-   * return: See the code documentation for details.
-   */
-  int get_tgpio_modbus_timeout(int *timeout, bool is_transparent_transmission = false);
-
-  /**
    * @brief Get poe status
    *  Note:
    *    1. only available if firmware_version >= 2.3.0
@@ -3018,9 +3087,9 @@ private:
   void _report_count_changed_callback(void);
   void _report_iden_progress_changed_callback(void);
   void _feedback_callback(unsigned char *feedback_data);
-  int _check_modbus_code(int ret, unsigned char *rx_data = NULL, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
-  int _get_modbus_baudrate(int *baud_inx, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
-  int _checkset_modbus_baud(int baudrate, bool check = true, unsigned char host_id = UXBUS_CONF::TGPIO_HOST_ID);
+  int _check_modbus_code(int ret, unsigned char *rx_data = NULL, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID);
+  int _get_modbus_baudrate(int *baud_inx, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID);
+  int _checkset_modbus_baud(int baudrate, bool check = true, unsigned char host_id = UXBUS_CONF::ROBOT_RS485_HOST_ID);
   int _robotiq_set(unsigned char *params, int length, unsigned char ret_data[6]);
   int _robotiq_get(unsigned char ret_data[9], unsigned char number_of_registers = 0x03);
   int _robotiq_wait_activation_completed(fp32 timeout = 3);
@@ -3103,10 +3172,10 @@ private:
   fp32 p2p_msg_[5];
   fp32 rot_msg_[2];
 
-  int modbus_baud_;
+  int tgpio_modbus_baud_;
   bool robotiq_is_activated_;
   int robotiq_error_code_;
-  int linear_motor_baud_;
+  int control_box_modbus_baud_;
   int linear_motor_speed_;
 
   bool xarm_gripper_is_enabled_;
