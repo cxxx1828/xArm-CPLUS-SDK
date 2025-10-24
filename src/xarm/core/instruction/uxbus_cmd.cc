@@ -1345,13 +1345,17 @@ int UxbusCmd::move_line_aa(float mvpose[6], float mvvelo, float mvacc, float mvt
 }
 
 int UxbusCmd::move_servo_cart_aa(float mvpose[6], float mvvelo, float mvacc, int tool_coord, int relative) {
-  float txdata[9] = { 0 };
+  float txdata[8] = { 0 };
   for (int i = 0; i < 6; i++) { txdata[i] = mvpose[i]; }
   txdata[6] = mvvelo;
   txdata[7] = mvacc;
-  txdata[8] = (char)tool_coord;
-  char additional[1] = { (char)relative };
-  return _set_nfp32_with_bytes(UXBUS_RG::MOVE_SERVO_CART_AA, txdata, 9, additional, 1);
+  char additional[5] = {0};
+  int32_to_hex(tool_coord, (unsigned char *)additional);
+  additional[4] = (char)relative;
+  return _set_nfp32_with_bytes(UXBUS_RG::MOVE_SERVO_CART_AA, txdata, 8, additional, 5);
+  // txdata[8] = (char)tool_coord;
+  // char additional[1] = { (char)relative };
+  // return _set_nfp32_with_bytes(UXBUS_RG::MOVE_SERVO_CART_AA, txdata, 9, additional, 1);
 }
 
 int UxbusCmd::move_relative(float mvpose[7], float mvvelo, float mvacc, float mvtime, float radius, int is_joint_motion, bool is_axis_angle, unsigned char only_check_type, unsigned char *only_check_result, unsigned char motion_type, std::string feedback_key)
@@ -1869,6 +1873,16 @@ int UxbusCmd::set_common_param(unsigned char param_type, int param_val)
   return _set_nu8(UXBUS_RG::SET_COMMON_PARAM, send_data, 5);
 }
 
+int UxbusCmd::set_common_param(unsigned char param_type, int *param_vals, int n)
+{
+  unsigned char *send_data = new unsigned char[n * 4 + 1]();
+  send_data[0] = param_type;
+  nint32_to_hex(param_vals, &send_data[1], n);
+  int ret = _set_nu8(UXBUS_RG::SET_COMMON_PARAM, send_data,  n * 4 + 1);
+  delete[] send_data;
+  return ret;
+}
+
 int UxbusCmd::set_common_param(unsigned char param_type, float param_val)
 {
   unsigned char send_data[5] = {0};
@@ -1887,23 +1901,33 @@ int UxbusCmd::set_common_param(unsigned char param_type, float *param_vals, int 
   return ret;
 }
 
-int UxbusCmd::get_common_param(unsigned char param_type, int *param_val)
+// int UxbusCmd::get_common_param(unsigned char param_type, int *param_val)
+// {
+//   unsigned char send_data[1] = {param_type};
+//   unsigned char rx_data[4] = {0};
+//   int ret = _getset_nu8(UXBUS_RG::GET_COMMON_PARAM, send_data, 1, rx_data, 4);
+//   *param_val = bin8_to_32(rx_data);
+//   return ret;
+// }
+
+int UxbusCmd::get_common_param(unsigned char param_type, int *param_vals, int n)
 {
   unsigned char send_data[1] = {param_type};
-  unsigned char rx_data[4] = {0};
-  int ret = _getset_nu8(UXBUS_RG::GET_COMMON_PARAM, send_data, 1, rx_data, 4);
-  *param_val = bin8_to_32(rx_data);
+  unsigned char *rx_data = new unsigned char[n * 4]();
+  int ret = _getset_nu8(UXBUS_RG::GET_COMMON_PARAM, send_data, 1, rx_data,  n * 4);
+  bin8_to_n32(rx_data, param_vals, n);
+  delete[] rx_data;
   return ret;
 }
 
-int UxbusCmd::get_common_param(unsigned char param_type, float *param_val)
-{
-  unsigned char send_data[1] = {param_type};
-  unsigned char rx_data[4] = {0};
-  int ret = _getset_nu8(UXBUS_RG::GET_COMMON_PARAM, send_data, 1, rx_data, 4);
-  *param_val = hex_to_fp32(rx_data);
-  return ret;
-}
+// int UxbusCmd::get_common_param(unsigned char param_type, float *param_val)
+// {
+//   unsigned char send_data[1] = {param_type};
+//   unsigned char rx_data[4] = {0};
+//   int ret = _getset_nu8(UXBUS_RG::GET_COMMON_PARAM, send_data, 1, rx_data, 4);
+//   *param_val = hex_to_fp32(rx_data);
+//   return ret;
+// }
 
 int UxbusCmd::get_common_param(unsigned char param_type, float *param_vals, int n)
 {

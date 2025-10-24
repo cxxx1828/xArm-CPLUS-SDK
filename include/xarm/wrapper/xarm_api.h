@@ -41,7 +41,7 @@
 #define RAD_DEGREE 57.295779513082320876798154814105
 #define TIMEOUT_10 10
 #define NO_TIMEOUT -1
-#define SDK_VERSION "1.17.1"
+#define SDK_VERSION "1.17.2"
 
 typedef unsigned int u32;
 typedef float fp32;
@@ -2881,6 +2881,25 @@ public:
    * return: See the code documentation for details.
    */
   int set_ft_admittance_ctrl_threshold(float thresholds[6]);
+
+  /**
+   * @brief  Set the monitor params of the external device
+   *  Note:
+   *    1. only available if firmware_version >= 2.7.110
+   *    2. after it is turned on, the position/speed/current information of the external device will be reported through port 30000
+   *    3. once an error occurs, you need to re call to monitor
+   * 
+   * @param dev_type: the type of the external device
+   *    0: Turn off monitoring
+   *    1: xArm Gripper
+   *    2: xArm Gripper G2
+   *    3: BIO Gripper G2
+   *    4: Robotiq 2F-85
+   *    5: Robotiq 2F-140
+   * @param frequency: the frequency of communication with the external device
+   * return: See the code documentation for details.
+   */
+  int set_external_device_monitor_params(int dev_type, int frequency);
   
   /**
    * @brief Get the collision detection with the Six-axis Force Torque Sensor is enable or not
@@ -2931,6 +2950,16 @@ public:
    * return: See the code documentation for details.
    */
   int get_ft_admittance_ctrl_threshold(float thresholds[6]);
+
+  /**
+   * @brief Get the monitor params of the external device
+   *  Note:
+   *    1. only available if firmware_version >= 2.7.110
+   * 
+   * @param params: params, [dev_type, frequency]
+   * return: See the code documentation for details.
+   */
+  int get_external_device_monitor_params(int params[2]);
 
   /**
    * @brief (Standard Modbus TCP) Read Coils (0x01)

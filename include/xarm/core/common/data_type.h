@@ -13,7 +13,7 @@
 #define CORE_COMMON_DATA_TYPE_H_
 
 #include <stdio.h>
- //#include <arpa/inet.h>
+// #include <arpa/inet.h>
 
 
 inline void bin64_to_8(long long a, unsigned char* b) {
@@ -61,6 +61,12 @@ inline void bin8_to_ns16(unsigned char *a, int *data, int n) {
 
 inline unsigned long long bin8_to_64(unsigned char* a) {
   return ((unsigned long long)a[0] << 56) + ((unsigned long long)a[1] << 48) + ((unsigned long long)a[2] << 40) + ((unsigned long long)a[3] << 32) + ((unsigned long long)a[4] << 24) + ((unsigned long long)a[5] << 16) + ((unsigned long long)a[6] << 8) + (unsigned long long)a[7];
+}
+
+inline void bin8_to_n32(unsigned char *a, int *data, int n) {
+  for (int i = 0; i < n; ++i) {
+    data[i] = bin8_to_32(&a[i * 4]);
+  }
 }
 
 inline void fp32_to_hex(double dataf, unsigned char datahex[4]) {

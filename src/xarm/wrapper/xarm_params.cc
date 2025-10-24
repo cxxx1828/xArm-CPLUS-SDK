@@ -420,6 +420,13 @@ int XArmAPI::set_ft_admittance_ctrl_threshold(float thresholds[6])
   return core->set_common_param(6, thresholds, 6);
 }
 
+int XArmAPI::set_external_device_monitor_params(int dev_type, int frequency)
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  int params[2] = {dev_type, frequency};
+  return core->set_common_param(15, params, 2);
+}
+
 int XArmAPI::get_ft_collision_detection(int *on_off)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
@@ -454,4 +461,10 @@ int XArmAPI::get_ft_admittance_ctrl_threshold(float thresholds[6])
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   return core->get_common_param(6, thresholds, 6);
+}
+
+int XArmAPI::get_external_device_monitor_params(int params[2])
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  return core->get_common_param(15, params, 2);
 }

@@ -277,11 +277,13 @@ public:
   int check_feedback(std::string feedback_key = "");
 
   int set_common_param(unsigned char param_type, int param_val);
+  int set_common_param(unsigned char param_type, int *param_vals, int n);
   int set_common_param(unsigned char param_type, float param_val);
   int set_common_param(unsigned char param_type, float *param_vals, int n);
-  int get_common_param(unsigned char param_type, int *param_val);
-  int get_common_param(unsigned char param_type, float *param_val);
-  int get_common_param(unsigned char param_type, float *param_vals, int n);
+  // int get_common_param(unsigned char param_type, int *param_val);
+  int get_common_param(unsigned char param_type, int *param_val, int n = 1);
+  // int get_common_param(unsigned char param_type, float *param_val);
+  int get_common_param(unsigned char param_type, float *param_vals, int n = 1);
   int get_poe_status(int *status);
   int get_iden_status(int *status);
   int get_c31_error_info(int *id, float *theoretical_tau, float *actual_tau);

@@ -731,6 +731,11 @@ namespace XArmWrapper
     return get_instance(instance_id)->set_ft_admittance_ctrl_threshold(thresholds);
   }
 
+  int __stdcall set_external_device_monitor_params(int dev_type, int frequency, int instance_id)
+  {
+    return get_instance(instance_id)->set_external_device_monitor_params(dev_type, frequency);
+  }
+
   int __stdcall get_ft_collision_detection(int *on_off, int instance_id)
   {
     return get_instance(instance_id)->get_ft_collision_detection(on_off);
@@ -754,6 +759,11 @@ namespace XArmWrapper
   int __stdcall get_ft_admittance_ctrl_threshold(float thresholds[6], int instance_id)
   {
     return get_instance(instance_id)->get_ft_admittance_ctrl_threshold(thresholds);
+  }
+
+  int __stdcall get_external_device_monitor_params(int params[2], int instance_id)
+  {
+    return get_instance(instance_id)->get_external_device_monitor_params(params);
   }
 
   /* modbus tcp func_code: 0x01 */

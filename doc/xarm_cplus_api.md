@@ -2625,6 +2625,23 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;Rz: [0.01, 2] (Nm)    
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
+- __int set_external_device_monitor_params(int dev_type, int frequency)__
+  > Set the monitor params of the external device   
+  > Note:   
+  > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.7.110     
+  > &ensp;&ensp;&ensp;&ensp;2. after it is turned on, the position/speed/current information of the external device will be reported through port 30000     
+  > &ensp;&ensp;&ensp;&ensp;3. once an error occurs, you need to re call to monitor     
+  >    
+  > @param dev_type: the type of the external device   
+  > &ensp;&ensp;&ensp;&ensp;0: Turn off monitoring    
+  > &ensp;&ensp;&ensp;&ensp;1: xArm Gripper    
+  > &ensp;&ensp;&ensp;&ensp;2: xArm Gripper G2    
+  > &ensp;&ensp;&ensp;&ensp;3: BIO Gripper G2    
+  > &ensp;&ensp;&ensp;&ensp;4: Robotiq 2F-85    
+  > &ensp;&ensp;&ensp;&ensp;5: Robotiq 2F-140   
+  > @param frequency: the frequency of communication with the external device 
+  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
 - __int get_ft_collision_detection(int *on_off)__
   > Get the collision detection with the Six-axis Force Torque Sensor is enable or not   
   > Note:   
@@ -2663,6 +2680,14 @@ __int move_gohome(bool wait=false, float timeout=NO_TIMEOUT)__
   > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.6.110     
   >    
   > @param thresholds: reaction thresholds, [x(N), y(N), z(N), Rx(Nm), Ry(Nm), Rz(Nm)]    
+  > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
+
+- __int get_external_device_monitor_params(int params[2])__
+  > Get the monitor params of the external device  
+  > Note:   
+  > &ensp;&ensp;&ensp;&ensp;1. only available if firmware_version >= 2.7.110     
+  >    
+  > @param params: params, [dev_type, frequency]    
   > @return: See the [API Code Documentation](./xarm_api_code.md#api-code) for details.
 
 - __int read_coil_bits(unsigned short addr, unsigned short quantity, unsigned char *bits)__
