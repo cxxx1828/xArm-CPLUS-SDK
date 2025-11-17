@@ -277,7 +277,7 @@ namespace xarm_csharp_demo
         [DllImport("xarm.dll")]
         public static extern int get_tgpio_modbus_baudrate(ref int baud, int instance_id = -1);
         [DllImport("xarm.dll")]
-        public static extern int set_tgpio_modbus_use_503_port(bool use_503_port = true, int instance_id = -1);
+        public static extern int set_rs485_use_503_port(bool use_503_port = true, int instance_id = -1);
         [DllImport("xarm.dll")]
         public static extern int getset_tgpio_modbus_data(byte[] modbus_data, int modbus_length, byte[] ret_data, int ret_length, byte host_id = 9, bool is_transparent_transmission = false, bool use_503_port = false, int instance_id = -1);
         [DllImport("xarm.dll")]
@@ -477,10 +477,10 @@ namespace xarm_csharp_demo
         public static extern int get_ft_admittance_ctrl_threshold(float[] thresholds, int instance_id = -1);
 
         [DllImport("xarm.dll")]
-        public static extern int get_external_device_monitor_params(int[] params, int instance_id = -1);
+        public static extern int get_external_device_monitor_params(int[] monitor_params, int instance_id = -1);
 
         [DllImport("xarm.dll")]
-        public static extern int get_tgpio_monitor_params(int[] params, int instance_id = -1);
+        public static extern int get_tgpio_monitor_params(int[] monitor_params, int instance_id = -1);
 
         /* modbus tcp func_code: 0x01 */
         [DllImport("xarm.dll")]
