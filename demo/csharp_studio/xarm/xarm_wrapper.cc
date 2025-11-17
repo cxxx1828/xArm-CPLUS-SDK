@@ -736,6 +736,11 @@ namespace XArmWrapper
     return get_instance(instance_id)->set_external_device_monitor_params(dev_type, frequency);
   }
 
+  int __stdcall set_tgpio_monitor_params(int io_type, int frequency, int instance_id)
+  {
+    return get_instance(instance_id)->set_tgpio_monitor_params(io_type, frequency);
+  }
+
   int __stdcall get_ft_collision_detection(int *on_off, int instance_id)
   {
     return get_instance(instance_id)->get_ft_collision_detection(on_off);
@@ -764,6 +769,11 @@ namespace XArmWrapper
   int __stdcall get_external_device_monitor_params(int params[2], int instance_id)
   {
     return get_instance(instance_id)->get_external_device_monitor_params(params);
+  }
+
+  int __stdcall get_tgpio_monitor_params(int params[2], int instance_id)
+  {
+    return get_instance(instance_id)->get_tgpio_monitor_params(params);
   }
 
   /* modbus tcp func_code: 0x01 */

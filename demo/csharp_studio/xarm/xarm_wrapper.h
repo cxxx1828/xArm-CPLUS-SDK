@@ -234,12 +234,14 @@ namespace XArmWrapper {
   extern "C" __declspec(dllexport) int __stdcall set_ft_collision_reb_distance(float distances[6], int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_ft_admittance_ctrl_threshold(float thresholds[6], int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall set_external_device_monitor_params(int dev_type, int frequency, int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall set_tgpio_monitor_params(int io_type, int frequency, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_ft_collision_detection(int *on_off, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_ft_collision_rebound(int *on_off, int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_ft_collision_threshold(float thresholds[6], int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_ft_collision_reb_distance(float distances[6], int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_ft_admittance_ctrl_threshold(float thresholds[6], int instance_id = -1);
   extern "C" __declspec(dllexport) int __stdcall get_external_device_monitor_params(int params[2], int instance_id = -1);
+  extern "C" __declspec(dllexport) int __stdcall get_tgpio_monitor_params(int params[2], int instance_id = -1);
 
   /* modbus tcp func_code: 0x01 */
   extern "C" __declspec(dllexport) int __stdcall read_coil_bits(unsigned short addr, unsigned short quantity, unsigned char *bits, int instance_id = -1);

@@ -977,6 +977,11 @@ namespace xarm_csharp_demo
             return XArmAPI.set_external_device_monitor_params(dev_type, frequency, robot_instance_id);
         }
 
+        public int set_tgpio_monitor_params(int io_type, int frequency)
+        {
+            return XArmAPI.set_tgpio_monitor_params(io_type, frequency, robot_instance_id);
+        }
+
         public int get_ft_collision_detection(ref int on_off)
         {
             return XArmAPI.get_ft_collision_detection(ref on_off, robot_instance_id);
@@ -1005,6 +1010,11 @@ namespace xarm_csharp_demo
         public int get_external_device_monitor_params(int[] params)
         {
             return XArmAPI.get_external_device_monitor_params(params, robot_instance_id);
+        }
+
+        public int get_tgpio_monitor_params(int[] params)
+        {
+            return XArmAPI.get_tgpio_monitor_params(params, robot_instance_id);
         }
 
         public int read_coil_bits(UInt16 addr, UInt16 quantity, byte[] bits)

@@ -459,6 +459,9 @@ namespace xarm_csharp_demo
         public static extern int set_external_device_monitor_params(int dev_type, int frequency, int instance_id = -1);
 
         [DllImport("xarm.dll")]
+        public static extern int set_tgpio_monitor_params(int io_type, int frequency, int instance_id = -1);
+
+        [DllImport("xarm.dll")]
         public static extern int get_ft_collision_detection(ref int on_off, int instance_id = -1);
 
         [DllImport("xarm.dll")]
@@ -476,6 +479,8 @@ namespace xarm_csharp_demo
         [DllImport("xarm.dll")]
         public static extern int get_external_device_monitor_params(int[] params, int instance_id = -1);
 
+        [DllImport("xarm.dll")]
+        public static extern int get_tgpio_monitor_params(int[] params, int instance_id = -1);
 
         /* modbus tcp func_code: 0x01 */
         [DllImport("xarm.dll")]

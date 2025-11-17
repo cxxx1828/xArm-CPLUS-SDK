@@ -427,6 +427,13 @@ int XArmAPI::set_external_device_monitor_params(int dev_type, int frequency)
   return core->set_common_param(15, params, 2);
 }
 
+int XArmAPI::set_tgpio_monitor_params(int dev_type, int frequency)
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  int params[2] = {dev_type, frequency};
+  return core->set_common_param(16, params, 2);
+}
+
 int XArmAPI::get_ft_collision_detection(int *on_off)
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
@@ -467,4 +474,10 @@ int XArmAPI::get_external_device_monitor_params(int params[2])
 {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   return core->get_common_param(15, params, 2);
+}
+
+int XArmAPI::get_tgpio_monitor_params(int params[2])
+{
+  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  return core->get_common_param(16, params, 2);
 }
