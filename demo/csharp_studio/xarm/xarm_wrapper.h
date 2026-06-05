@@ -6,6 +6,7 @@
  * All rights reserved.
  * 
  * @author Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
+ @authors
  */
 
 #include "xarm/wrapper/xarm_api.h"
