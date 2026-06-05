@@ -53,45 +53,45 @@ int XArmAPI::set_ft_sensor_force_parameters(float kp[6], float ki[6], float kd[6
   return _check_code(ret);
 }
 
-// int XArmAPI::set_impedance(int coord, int c_axis[6], float M[6], float K[6], float B[6])
-// {
-//   return set_ft_sensor_admittance_parameters(coord, c_axis, M, K, B);
-//   // if (!is_connected()) return API_CODE::NOT_CONNECTED;
-//   // int ret = core->set_admittance(coord, c_axis, M, K, B);
-//   // return _check_code(ret);
-// }
+int XArmAPI::set_impedance(int coord, int c_axis[6], float M[6], float K[6], float B[6])
+{
+  return set_ft_sensor_admittance_parameters(coord, c_axis, M, K, B);
+  // if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  // int ret = core->set_admittance(coord, c_axis, M, K, B);
+  // return _check_code(ret);
+}
 
-// int XArmAPI::set_impedance_mbk(float M[6], float K[6], float B[6])
-// {
-//   return set_ft_sensor_admittance_parameters(M, K, B);
-//   // if (!is_connected()) return API_CODE::NOT_CONNECTED;
-//   // int ret = core->set_admittance_mbk(M, K, B);
-//   // return _check_code(ret);
-// }
+int XArmAPI::set_impedance_mbk(float M[6], float K[6], float B[6])
+{
+  return set_ft_sensor_admittance_parameters(M, K, B);
+  // if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  // int ret = core->set_admittance_mbk(M, K, B);
+  // return _check_code(ret);
+}
 
-// int XArmAPI::set_impedance_config(int coord, int c_axis[6])
-// {
-//   return set_ft_sensor_admittance_parameters(coord, c_axis);
-//   // if (!is_connected()) return API_CODE::NOT_CONNECTED;
-//   // int ret = core->set_admittance_config(coord, c_axis);
-//   // return _check_code(ret);
-// }
+int XArmAPI::set_impedance_config(int coord, int c_axis[6])
+{
+  return set_ft_sensor_admittance_parameters(coord, c_axis);
+  // if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  // int ret = core->set_admittance_config(coord, c_axis);
+  // return _check_code(ret);
+}
 
-// int XArmAPI::config_force_control(int coord, int c_axis[6], float f_ref[6], float limits[6])
-// {
-//   return set_ft_sensor_force_parameters(coord, c_axis, f_ref, limits);
-//   // if (!is_connected()) return API_CODE::NOT_CONNECTED;
-//   // int ret = core->config_force_control(coord, c_axis, f_ref, limits);
-//   // return _check_code(ret);
-// }
+int XArmAPI::config_force_control(int coord, int c_axis[6], float f_ref[6], float limits[6])
+{
+  return set_ft_sensor_force_parameters(coord, c_axis, f_ref, limits);
+  // if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  // int ret = core->config_force_control(coord, c_axis, f_ref, limits);
+  // return _check_code(ret);
+}
 
-// int XArmAPI::set_force_control_pid(float kp[6], float ki[6], float kd[6], float xe_limit[6])
-// {
-//   return set_ft_sensor_force_parameters(kp, ki, kd, xe_limit);
-//   // if (!is_connected()) return API_CODE::NOT_CONNECTED;
-//   // int ret = core->set_force_control_pid(kp, ki, kd, xe_limit);
-//   // return _check_code(ret);
-// }
+int XArmAPI::set_force_control_pid(float kp[6], float ki[6], float kd[6], float xe_limit[6])
+{
+  return set_ft_sensor_force_parameters(kp, ki, kd, xe_limit);
+  // if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  // int ret = core->set_force_control_pid(kp, ki, kd, xe_limit);
+  // return _check_code(ret);
+}
 
 int XArmAPI::set_ft_sensor_zero(void)
 {
