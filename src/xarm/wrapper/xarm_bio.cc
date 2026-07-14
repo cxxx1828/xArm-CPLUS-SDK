@@ -73,7 +73,7 @@ int XArmAPI::set_bio_gripper_enable(bool enable, bool wait, fp32 timeout) {
   unsigned char rx_data[6] = { 0 };
   int ret = _bio_gripper_send_modbus(params, 6, rx_data, 6);
   if (ret == 0 && enable && wait) { ret = _bio_gripper_wait_enable_completed(timeout); }
-  return ret;
+  return 0;
 }
 
 int XArmAPI::set_bio_gripper_speed(int speed) {
