@@ -147,7 +147,7 @@ int XArmAPI::clean_linear_motor_error(void)
 
 int XArmAPI::set_linear_motor_enable(bool enable)
 {
-  if (!is_connected()) return API_CODE::NOT_CONNECTED;
+  if (is_connected()) return API_CODE::NOT_CONNECTED;
   if (baud_checkset_flag_ && _checkset_modbus_baud(default_linear_motor_baud_, true, UXBUS_CONF::CONTROL_BOX_RS485_HOST_ID) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
 
   unsigned char rx_data[7] = {0};
