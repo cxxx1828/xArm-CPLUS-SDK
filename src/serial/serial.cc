@@ -54,9 +54,6 @@ private:
     SerialImpl *pimpl_;
 };
 
-// ==========================
-//  Async Reader
-// ==========================
 
 class Serial::AsyncReader {
 public:
