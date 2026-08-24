@@ -12,7 +12,7 @@ else
 endif
 
 BUILD_DIR = ./build/
-INC_DIR = ./include/
+
 SRC_DIR = ./src/
 EXAMPLE_DIR = ./example/
 BUILD_EXAMPLE_DIR = $(BUILD_DIR)example/
