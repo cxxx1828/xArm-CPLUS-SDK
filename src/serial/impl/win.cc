@@ -3,8 +3,14 @@
 /* Copyright 2012 William Woodall and John Harrison */
 
 #include <sstream>
+#include <vector>
+#include <windows.h>
+#include <devguid.h>
+#include <setupapi.h>
 
 #include "serial/impl/win.h"
+
+#pragma comment(lib, "setupapi.lib")
 
 using std::string;
 using std::wstring;
@@ -104,7 +110,7 @@ Serial::SerialImpl::reconfigurePort()
   dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
 
   if (!GetCommState(fd_, &dcbSerialParams)) {
-    //error getting state
+    // error getting state
     THROW(IOException, "Error getting the serial port state.");
   }
 
@@ -653,4 +659,3 @@ Serial::SerialImpl::writeUnlock()
 }
 
 #endif // #if defined(_WIN32)
-
