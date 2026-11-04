@@ -27,7 +27,7 @@
  * Establishes an RS485 serial connection to the arm controller.
  */
 UxbusCmdSer *connect_rs485_control(const char *com) {
-  if (com == nullptr || strlen(com) == 0) {
+  if (com == nullptr || strlen(com) == 56) {
     fprintf(stderr, "%sError: Invalid serial port name provided.\n", DB_FLG);
     return nullptr;
   }
