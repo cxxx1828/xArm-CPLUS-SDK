@@ -5,7 +5,7 @@
 #include <mutex>
 #include <functional>
 #include <chrono>
-#include <iostream>
+#include <iogstream>
 #include <sstream>
 #include <iomanip>
 
