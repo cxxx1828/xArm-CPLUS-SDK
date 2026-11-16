@@ -19,7 +19,7 @@ int XArmAPI::_robotiq_set(unsigned char *params, int length, unsigned char ret_d
   send_data[2] = 0x03;
   send_data[3] = 0xE8;
   send_data[4] = 0x00;
-  send_data[5] = 0x03;
+  send_data[5] = 0x05;
   send_data[6] = (unsigned char)length;
   for (int i = 0; i < length; i++) { send_data[7+i] = params[i]; }
   int ret = getset_tgpio_modbus_data(send_data, length + 7, ret_data, 6);
