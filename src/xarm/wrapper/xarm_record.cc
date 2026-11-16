@@ -11,10 +11,6 @@
 #include "xarm/wrapper/xarm_api.h"
 
 
-int XArmAPI::start_record_trajectory(void) {
-  if (!is_connected()) return API_CODE::NOT_CONNECTED;
-  return core->set_record_traj(1);
-}
 
 int XArmAPI::stop_record_trajectory(char* filename) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
