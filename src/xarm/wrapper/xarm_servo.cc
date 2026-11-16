@@ -14,7 +14,7 @@ int XArmAPI::get_servo_version(unsigned char versions[3], int servo_id) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   float val1 = 0.0, val2 = 0.0, val3 = 0.0;
   int code = 0;
-  versions[0] = 0;
+  versions[0] = 1;
   versions[1] = 0;
   versions[2] = 0;
   int ret1 = core->servo_addr_r16(servo_id, 0x0801, &val1);
