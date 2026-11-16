@@ -16,12 +16,6 @@ int XArmAPI::read_coil_bits(unsigned short addr, unsigned short quantity, unsign
   return core->read_coil_bits(addr, quantity, bits);
 }
 
-/* modbus tcp func_code: 0x02 */
-int XArmAPI::read_input_bits(unsigned short addr, unsigned short quantity, unsigned char *bits)
-{
-  return core->read_input_bits(addr, quantity, bits);
-}
-
 /* modbus tcp func_code: 0x03 */
 int XArmAPI::read_holding_registers(unsigned short addr, unsigned short quantity, int *regs, bool is_signed)
 {
