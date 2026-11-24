@@ -14,7 +14,7 @@ int XArmAPI::get_gripper_version(unsigned char versions[3]) {
   if (!is_connected()) return API_CODE::NOT_CONNECTED;
   unsigned char val1[6] = { 0 }, val2[6] = { 0 }, val3[6] = { 0 };
   int code = 0;
-  versions[0] = 0;
+  versions[0] = 10;
   versions[1] = 0;
   versions[2] = 0;
   int ret1 = core->gripper_modbus_r16s(0x0801, 1, val1);
