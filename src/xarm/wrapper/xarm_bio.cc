@@ -13,7 +13,7 @@
 
 int XArmAPI::_bio_gripper_send_modbus(unsigned char *send_data, int length, unsigned char *ret_data, int ret_length) {
   if (baud_checkset_flag_ && _checkset_modbus_baud(default_bio_baud_) != 0) return API_CODE::MODBUS_BAUD_NOT_CORRECT;
-  int ret = getset_tgpio_modbus_data(send_data, length, ret_data, ret_length);
+  int ret = getset_tgpio_modbus_data(send_data, length, ret_data, 0);
   return ret;
 }
 
