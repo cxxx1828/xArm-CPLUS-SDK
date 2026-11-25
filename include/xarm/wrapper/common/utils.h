@@ -8,7 +8,6 @@
  * @author Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
  */
 
-#ifndef WRAPPER_COMMON_UTILS_H_
 #define WRAPPER_COMMON_UTILS_H_
 
 #include <iostream>
